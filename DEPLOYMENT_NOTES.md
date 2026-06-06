@@ -1,111 +1,142 @@
 # DEPLOYMENT_NOTES.md — ihomestay.my
 
-Last updated: Stage 0
+Last updated: Stage 1
+
+---
 
 ## Deployment target
 
-**Subdomain:** new.ihomestay.my (development/staging)
-**Production domain:** ihomestay.my (only after full project completion)
+| Item | Value |
+|------|-------|
+| Development subdomain | new.ihomestay.my |
+| Production domain | ihomestay.my (cutover after all 12 stages done) |
+| Server IP | 111.90.134.20 |
+| cPanel username | kuantan1 |
+| PHP version | 8.2.31 |
+| Database engine | MySQL 8.0.37 |
+| OS | Linux x86_64 |
 
-IMPORTANT: The current ihomestay.my (WordPress + HivePress) must NOT be touched.
-All development happens on new.ihomestay.my until the new system is fully ready.
-Domain switch (new.ihomestay.my → ihomestay.my) happens only as a final cutover step.
+**IMPORTANT:** The current ihomestay.my (WordPress + HivePress) must NOT be touched.
+All development happens on new.ihomestay.my. Domain cutover happens only as the final step.
 
-## Hosting environment
+---
 
+## Confirmed server capabilities
+
+| Check | Result |
+|-------|--------|
+| PHP version | 8.2.31 ✅ |
+| pdo_mysql | confirmed ✅ |
+| cPanel Terminal | available ✅ |
+| Git Version Control | configured ✅ |
+| MySQL database | kuantan1_ihomestay ✅ |
+
+---
+
+## Project paths on server
+
+| Purpose | Path |
+|---------|------|
+| Project root | /home/kuantan1/public_html/new.ihomestay.my |
+| Public web root | /home/kuantan1/public_html/new.ihomestay.my/public |
+| .env file | /home/kuantan1/public_html/new.ihomestay.my/.env |
+| Uploads | /home/kuantan1/public_html/new.ihomestay.my/uploads |
+| Logs | /home/kuantan1/public_html/new.ihomestay.my/storage/logs |
+
+---
+
+## DNS configuration
+
+DNS is managed via **Cloudflare** (not cPanel Zone Editor).
+
+| Record | Type | Value |
+|--------|------|-------|
+| new.ihomestay.my | A | 111.90.134.20 |
+| Proxy status | DNS only (grey cloud) | — |
+
+**Important:** Always add new subdomains in Cloudflare, not cPanel.
+
+---
+
+## Git deployment workflow
+
+### First-time setup (done)
+1. GitHub repo: https://github.com/kentkoh/ihomestay.my (public)
+2. cPanel Git Version Control clones from GitHub
+3. Path: /home/kuantan1/public_html/new.ihomestay.my
+
+### Regular deploy (every stage)
+```bash
+# On local PC (VS Code terminal)
+git add .
+git commit -m "feat: Stage X description"
+git push
+
+# On server (cPanel → Git Version Control → Manage → Update from Remote)
+# OR in cPanel Terminal:
+cd ~/public_html/new.ihomestay.my
+git pull
 ```
-cPanel shared hosting
-PHP (version to confirm via SSH — minimum 7.4 required, 8.0+ preferred)
-MySQL / MariaDB
-Git Version Control (cPanel Git)
-SSH access
-Terminal access
-```
 
-## Document root configuration
+---
 
-Point new.ihomestay.my document root to:
-```
-/public_html/new/public
-```
-or as configured in cPanel subdomain settings.
-
-Only the /public folder is publicly accessible.
-All other directories (app, config, database, storage, uploads) must be outside web root
-or protected via .htaccess.
-
-## Deployment steps (Git-based)
-
-1. Create cPanel Git repository linked to this project
-2. Set deploy path to the project folder on the server
-3. Push from local to cPanel remote
-4. SSH into server and run post-deploy setup if needed
-
-## Required server checks (run via SSH before Stage 1)
+## Post-deploy commands (one-time, already done)
 
 ```bash
-php -v                  # Must be >= 7.4
-mysql --version         # Confirm MySQL/MariaDB availability
-php -m | grep pdo       # Confirm PDO and PDO_MySQL
-php -m | grep mbstring  # Confirm mbstring
-php -m | grep gd        # Confirm GD for image processing
-```
-
-## Post-deploy file setup on server
-
-```bash
+cd ~/public_html/new.ihomestay.my
 cp .env.example .env
-# Edit .env with real credentials
-chmod 755 uploads/
-chmod 755 storage/
-chmod 755 storage/logs/
+nano .env   # fill in DB credentials
 ```
 
-## .env required keys
+---
+
+## Database credentials (in .env on server — do not commit)
 
 ```
-APP_NAME=ihomestay.my
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://new.ihomestay.my
-APP_KEY=        # random 32-char string for hashing
-
 DB_HOST=localhost
-DB_DATABASE=
-DB_USERNAME=
-DB_PASSWORD=
-DB_CHARSET=utf8mb4
-
-BILLPLZ_API_KEY=
-BILLPLZ_COLLECTION_ID=
-BILLPLZ_X_SIGNATURE_KEY=
-BILLPLZ_SANDBOX=false
-
-MAIL_HOST=
-MAIL_PORT=
-MAIL_USERNAME=
-MAIL_PASSWORD=
-MAIL_FROM_ADDRESS=noreply@ihomestay.my
-MAIL_FROM_NAME=ihomestay.my
-
-UPLOAD_MAX_SIZE_MB=5
+DB_DATABASE=kuantan1_ihomestay
+DB_USERNAME=kuantan1_ihomestay
+DB_PASSWORD=(set on server only)
 ```
 
-## .htaccess (URL routing)
+---
 
-All requests routed through public/index.php.
-See public/.htaccess for rules.
+## Stage 1 deploy steps (pending)
 
-## Domain cutover plan (final step)
+Run after pushing Stage 1 code to GitHub and pulling to server:
+
+```bash
+cd ~/public_html/new.ihomestay.my
+php database/migrate.php
+php database/seeders/AdminSeeder.php
+```
+
+Default admin login (change immediately):
+- Email: admin@ihomestay.my
+- Password: Admin@1234
+
+---
+
+## Folder permissions
+
+```bash
+chmod 755 ~/public_html/new.ihomestay.my/uploads
+chmod 755 ~/public_html/new.ihomestay.my/storage
+chmod 755 ~/public_html/new.ihomestay.my/storage/logs
+```
+
+---
+
+## Domain cutover plan (Stage 12 only)
 
 Only after:
-1. All 12 stages complete
+1. All 12 stages complete and tested on new.ihomestay.my
 2. WordPress data fully migrated and verified
-3. All redirects tested
-4. Full QA on new.ihomestay.my
+3. All 301 redirects from old WordPress URLs tested
+4. Full QA passed
 
-Then:
-- Update DNS: ihomestay.my → same server
-- Update document root: ihomestay.my → /public_html/new/public
-- Update APP_URL in .env to https://www.ihomestay.my
-- Test all redirects from old WordPress URLs
+Steps:
+1. In Cloudflare: update ihomestay.my A record → 111.90.134.20
+2. In cPanel: update ihomestay.my document root → /public_html/new.ihomestay.my/public
+3. Update .env: APP_URL=https://www.ihomestay.my
+4. Test all old WordPress URLs redirect correctly

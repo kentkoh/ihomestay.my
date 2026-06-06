@@ -1,6 +1,6 @@
 # STAGE_PLAN.md — ihomestay.my Development Stages
 
-## Current Stage: 0 (Completed)
+## Current Stage: 1 (Code complete — pending DNS + deployment test)
 
 ---
 
@@ -12,31 +12,53 @@ Tasks:
 - [x] Inspect existing project folder
 - [x] Choose framework (Custom PHP MVC — cPanel-safe)
 - [x] Create project directory structure
-- [x] Create documentation files
+- [x] Create documentation files (9 files)
 - [x] Create .env.example
-- [x] Create public/index.php entry point skeleton
-- [x] Create .htaccess for URL routing
+- [x] Create public/index.php entry point
+- [x] Create public/.htaccess for URL routing
 - [x] Create .gitignore
-
-Do not build features in this stage.
+- [x] Push project to GitHub (repo: kentkoh/ihomestay.my)
+- [x] Set up cPanel Git Version Control (pull from GitHub)
+- [x] Create subdomain new.ihomestay.my on cPanel
+- [x] Verify PHP 8.2.31 and pdo_mysql on server
+- [x] Create MySQL database: kuantan1_ihomestay
+- [x] Create .env file on server
+- [x] Add DNS A record in Cloudflare (new → 111.90.134.20)
 
 ---
 
-## Stage 1 — Core Database and Auth
+## Stage 1 — Core Database and Auth ✅ (code done, deploy pending)
 **Goal:** Create database foundation and login/register system.
 
 Tasks:
-- [ ] Migration: users table
-- [ ] Migration: owner_profiles table
-- [ ] Login page
-- [ ] Register page
-- [ ] Logout
-- [ ] Password reset flow (email token)
-- [ ] Role-based redirect after login
-- [ ] Admin seed account
-- [ ] Session handling and CSRF protection
+- [x] Migration: users table
+- [x] Migration: owner_profiles table
+- [x] Migration runner: database/migrate.php
+- [x] Core class: Auth.php
+- [x] Core class: CSRF.php
+- [x] Model: User.php
+- [x] Controller: AuthController.php (login, register, logout)
+- [x] Controller: AdminController.php
+- [x] Controller: OwnerController.php
+- [x] View: layouts/main.php (Bootstrap 5)
+- [x] View: auth/login.php
+- [x] View: auth/register.php
+- [x] View: admin/dashboard.php
+- [x] View: owner/dashboard.php
+- [x] Seeder: AdminSeeder.php
+- [x] Updated router with all auth routes
+- [ ] Push Stage 1 code to GitHub
+- [ ] Pull to server via cPanel Git Version Control
+- [ ] Run: php database/migrate.php on server
+- [ ] Run: php database/seeders/AdminSeeder.php on server
+- [ ] Test login at https://new.ihomestay.my/login
+- [ ] Test register at https://new.ihomestay.my/register
+- [ ] Confirm admin dashboard loads
+- [ ] Confirm owner dashboard loads
 
-Deliverables: Working auth, admin login, owner registration
+Default admin account (change password after first login):
+- Email: admin@ihomestay.my
+- Password: Admin@1234
 
 ---
 
@@ -45,11 +67,13 @@ Deliverables: Working auth, admin login, owner registration
 
 Tasks:
 - [ ] Migration: states, cities, areas tables
-- [ ] Seed all 16 Malaysian states
+- [ ] Seed all 16 Malaysian states + major cities
 - [ ] Migration: facilities table
-- [ ] Seed default facilities
-- [ ] Admin CRUD for locations
-- [ ] Admin CRUD for facilities
+- [ ] Seed default facilities (WiFi, Pool, BBQ, etc.)
+- [ ] Admin CRUD: states, cities, areas
+- [ ] Admin CRUD: facilities
+
+Deliverables: Admin can manage Malaysia locations and facilities
 
 ---
 
@@ -60,9 +84,12 @@ Tasks:
 - [ ] Migration: listings, listing_images, listing_facilities tables
 - [ ] Owner create listing form
 - [ ] Owner edit own listing
-- [ ] Image upload (with MIME check, rename, resize)
+- [ ] Image upload (MIME check, rename, size limit)
 - [ ] Admin listing approval / rejection / suspension
 - [ ] Listing status flow (draft → pending → published)
+- [ ] Free owner: max 3 listings enforcement
+
+Deliverables: Owner can submit listing, admin can approve/reject
 
 ---
 
@@ -70,15 +97,17 @@ Tasks:
 **Goal:** Build the public-facing directory.
 
 Tasks:
-- [ ] Homepage with hero search
+- [ ] Homepage with hero search box
 - [ ] Search results page with filters
-- [ ] State page /homestay/{state}
-- [ ] City page /homestay/{state}/{city}
-- [ ] Listing detail page /homestay/{state}/{city}/{slug}
-- [ ] Ranking logic (scoring)
-- [ ] View tracking
+- [ ] State page: /homestay/{state}
+- [ ] City page: /homestay/{state}/{city}
+- [ ] Listing detail page: /homestay/{state}/{city}/{slug}
+- [ ] Ranking logic (featured +100, verified +30, etc.)
+- [ ] Listing view tracking
 - [ ] WhatsApp click tracking
 - [ ] Non-verified owner warning popup
+
+Deliverables: Visitors can search, browse, and contact owners
 
 ---
 
@@ -86,11 +115,11 @@ Tasks:
 **Goal:** Free vs verified owner logic.
 
 Tasks:
-- [ ] Free owner: max 3 listings enforcement
 - [ ] Verification application form
 - [ ] Document upload
 - [ ] Admin approve/reject verification
-- [ ] Verified Owner badge on listing
+- [ ] Verified Owner badge on listing and profile
+- [ ] Upgrade prompt when free owner hits 3-listing limit
 
 ---
 
@@ -99,10 +128,11 @@ Tasks:
 
 Tasks:
 - [ ] Migration: packages, payments tables
-- [ ] Billplz API config
-- [ ] Bill creation service
-- [ ] Payment callback and webhook routes
-- [ ] Payment verification and activation logic
+- [ ] Billplz API config and service class
+- [ ] Bill creation flow
+- [ ] Payment callback route (redirect)
+- [ ] Webhook route (server-to-server)
+- [ ] Payment verification and feature activation logic
 
 ---
 
@@ -110,11 +140,11 @@ Tasks:
 **Goal:** Verified owners can buy featured listing placement.
 
 Tasks:
-- [ ] Featured listing package
-- [ ] Buy featured flow
-- [ ] featured_until expiry logic
+- [ ] Featured listing package options (7/30/90 days)
+- [ ] Buy featured flow with Billplz
+- [ ] featured_until expiry automation
 - [ ] Admin manual feature/unfeature
-- [ ] Featured listing appears higher in search
+- [ ] Featured listings appear higher in search
 
 ---
 
@@ -123,36 +153,44 @@ Tasks:
 
 Tasks:
 - [ ] Migration: articles, article_categories tables
-- [ ] Admin article CRUD
-- [ ] Article listing page /articles
-- [ ] Article detail page /articles/{slug}
+- [ ] Admin article CRUD with rich text editor
+- [ ] Cover image upload
+- [ ] Meta title/description fields
+- [ ] Article listing page: /articles
+- [ ] Article detail page: /articles/{slug}
 - [ ] Homepage latest articles section
 
 ---
 
 ## Stage 9 — Banner Advertising System
-**Goal:** Advertisers buy banner space, admin approves.
+**Goal:** Advertisers buy banner space, pay with Billplz, admin approves.
 
 Tasks:
 - [ ] Migration: ad_placements, ad_orders, ad_creatives, ad_impressions, ad_clicks
+- [ ] Seed 3 Version 1 placements (Home Top, City Top, Article Middle)
 - [ ] /advertise page
-- [ ] Ad order flow + Billplz payment
+- [ ] Ad order creation + banner upload
+- [ ] Billplz payment for ad order
 - [ ] Admin approve/reject ad
-- [ ] Ad display by placement with impression/click tracking
+- [ ] Ad display with rotation and impression/click tracking
+- [ ] Advertiser dashboard with stats
 
 ---
 
 ## Stage 10 — WordPress + HivePress Migration Tools
-**Goal:** Import existing data from old system.
+**Goal:** Import existing data from old WordPress system.
 
 Tasks:
-- [ ] audit_wordpress.php
-- [ ] export_users.php
-- [ ] export_listings.php
-- [ ] import_users.php
-- [ ] import_listings.php
-- [ ] import_images.php
-- [ ] create_redirects.php
+- [ ] tools/migration/audit_wordpress.php
+- [ ] tools/migration/export_users.php
+- [ ] tools/migration/export_listings.php
+- [ ] tools/migration/import_users.php
+- [ ] tools/migration/import_listings.php
+- [ ] tools/migration/import_images.php
+- [ ] tools/migration/create_redirects.php
+- [ ] Verify migrated data matches original counts
+
+Note: Run after core listing system is fully stable.
 
 ---
 
@@ -160,21 +198,25 @@ Tasks:
 **Goal:** Platform trust and safety features.
 
 Tasks:
-- [ ] Report listing button
-- [ ] Admin report management
-- [ ] Safety guidelines page
-- [ ] Terms and disclaimer page
+- [ ] Report listing button on listing detail page
+- [ ] Admin report management panel
+- [ ] Safety guidelines page: /safety-guidelines
+- [ ] Terms and conditions page: /terms
+- [ ] Privacy policy page: /privacy-policy
 
 ---
 
 ## Stage 12 — SEO, Sitemap, and Launch Cleanup
-**Goal:** Production-ready launch.
+**Goal:** Production-ready public launch.
 
 Tasks:
-- [ ] sitemap.xml generation
-- [ ] robots.txt
-- [ ] Schema markup
-- [ ] 301 redirects
-- [ ] 404 page
-- [ ] Performance and mobile check
-- [ ] Security audit
+- [ ] /sitemap.xml auto-generation
+- [ ] /robots.txt
+- [ ] Schema markup for listings and articles
+- [ ] 301 redirects from old WordPress URLs
+- [ ] Custom 404 error page
+- [ ] Performance audit (image sizes, page speed)
+- [ ] Mobile responsive check on all pages
+- [ ] Security audit (OWASP checklist)
+- [ ] Final QA on new.ihomestay.my
+- [ ] Domain cutover: new.ihomestay.my → ihomestay.my

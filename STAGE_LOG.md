@@ -129,3 +129,27 @@ Default admin credentials (change after first login):
 
 Next recommended stage:
 - Stage 2 — Location and Facility Module
+
+---
+
+## Server Setup Log (between Stage 0 and Stage 1)
+Date: 2026-06-07
+
+Confirmed:
+- PHP 8.2.31 on server
+- pdo_mysql available
+- MySQL 8.0.37
+- Server IP: 111.90.134.20
+- cPanel username: kuantan1
+- Database created: kuantan1_ihomestay
+- Database user: kuantan1_ihomestay
+- .env file created on server
+- GitHub repo created: https://github.com/kentkoh/ihomestay.my (public)
+- cPanel Git Version Control configured and cloned from GitHub
+- Subdomain new.ihomestay.my created on cPanel
+- Document root set to: public_html/new.ihomestay.my/public
+- DNS A record added in Cloudflare: new → 111.90.134.20 (DNS only, grey cloud)
+
+Pending:
+- DNS propagation for new.ihomestay.my (Cloudflare record added, waiting)
+- Stage 1 code push and deployment test
