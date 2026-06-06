@@ -138,10 +138,63 @@ class OwnerListingController {
         exit;
     }
 
+    public function uploadImages(string $id): void {
+        Auth::requireOwner();
+        CSRF::verify();
+        $this->ownerListing((int) $id);
+        header('Content-Type: application/json');
+
+        $existing = Listing::imageCount((int) $id);
+        if ($existing >= 10) {
+            echo json_encode(['success' => false, 'error' => 'Maximum 10 photos reached.']);
+            exit;
+        }
+        if (empty($_FILES['files']['name'][0])) {
+            echo json_encode(['success' => false, 'error' => 'No files received.']);
+            exit;
+        }
+
+        $dir = UPLOAD_PATH . '/listings/' . $id;
+        if (!is_dir($dir)) mkdir($dir, 0755, true);
+
+        $allowedMimes = ['image/jpeg', 'image/png', 'image/webp'];
+        $maxBytes     = 5 * 1024 * 1024;
+        $saved        = [];
+
+        foreach ($_FILES['files']['name'] as $i => $name) {
+            if ($_FILES['files']['error'][$i] !== UPLOAD_ERR_OK) continue;
+            if (($existing + count($saved)) >= 10) break;
+            if ($_FILES['files']['size'][$i] > $maxBytes) continue;
+
+            $tmpPath = $_FILES['files']['tmp_name'][$i];
+            $mime    = mime_content_type($tmpPath);
+            if (!in_array($mime, $allowedMimes, true)) continue;
+
+            $ext = match($mime) {
+                'image/jpeg' => 'jpg',
+                'image/png'  => 'png',
+                'image/webp' => 'webp',
+                default      => 'jpg',
+            };
+            $filename = $id . '_' . time() . '_' . bin2hex(random_bytes(3)) . '.' . $ext;
+            if (move_uploaded_file($tmpPath, $dir . '/' . $filename)) {
+                $isPrimary = $existing === 0 && count($saved) === 0;
+                Listing::addImage((int) $id, $filename, $isPrimary);
+                $allImages = Listing::getImages((int) $id);
+                foreach ($allImages as $img) {
+                    if ($img['filename'] === $filename) { $saved[] = $img; break; }
+                }
+            }
+        }
+
+        echo json_encode(['success' => true, 'images' => $saved]);
+        exit;
+    }
+
     public function deleteImage(string $listingId, string $imageId): void {
         Auth::requireOwner();
         CSRF::verify();
-        $listing = $this->ownerListing((int) $listingId);
+        $this->ownerListing((int) $listingId);
 
         $filename = Listing::deleteImage((int) $imageId, (int) $listingId);
         if ($filename) {
@@ -149,7 +202,13 @@ class OwnerListingController {
             if (file_exists($path)) unlink($path);
         }
 
-        header("Location: /owner/listings/$listingId/edit");
+        header('Content-Type: application/json');
+        $remaining  = Listing::getImages((int) $listingId);
+        $newPrimary = null;
+        foreach ($remaining as $img) {
+            if ($img['is_primary']) { $newPrimary = (int) $img['id']; break; }
+        }
+        echo json_encode(['success' => true, 'new_primary' => $newPrimary]);
         exit;
     }
 
@@ -158,7 +217,8 @@ class OwnerListingController {
         CSRF::verify();
         $this->ownerListing((int) $listingId);
         Listing::setPrimaryImage((int) $imageId, (int) $listingId);
-        header("Location: /owner/listings/$listingId/edit");
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true]);
         exit;
     }
 

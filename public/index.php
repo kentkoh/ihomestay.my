@@ -69,6 +69,7 @@ $router->post('/owner/listings/store',                                ['OwnerLis
 $router->get('/owner/listings/{id}/edit',                             ['OwnerListingController', 'edit']);
 $router->post('/owner/listings/{id}/update',                          ['OwnerListingController', 'update']);
 $router->post('/owner/listings/{id}/delete',                          ['OwnerListingController', 'delete']);
+$router->post('/owner/listings/{id}/images/upload',                   ['OwnerListingController', 'uploadImages']);
 $router->post('/owner/listings/{listingId}/images/{imageId}/delete',  ['OwnerListingController', 'deleteImage']);
 $router->post('/owner/listings/{listingId}/images/{imageId}/primary', ['OwnerListingController', 'setPrimary']);
 

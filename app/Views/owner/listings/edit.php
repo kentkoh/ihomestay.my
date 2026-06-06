@@ -176,43 +176,56 @@ foreach ($cities as $city) {
         </div>
         <?php endif; ?>
 
-        <!-- Photos -->
+        <!-- Photos (managed via AJAX — no nested forms) -->
         <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-white fw-semibold">Photos</div>
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">Photos</span>
+                <small class="text-muted"><span id="photo-count"><?= count($images) ?></span> / 10</small>
+            </div>
             <div class="card-body p-4">
-                <?php if (!empty($images)): ?>
-                    <div class="row g-2 mb-3">
-                        <?php foreach ($images as $img): ?>
-                            <div class="col-6 col-md-3">
-                                <div class="position-relative">
-                                    <img src="/uploads/listings/<?= $listing['id'] ?>/<?= htmlspecialchars($img['filename']) ?>"
-                                         class="img-fluid rounded" style="height:100px;width:100%;object-fit:cover;" alt="">
-                                    <?php if ($img['is_primary']): ?>
-                                        <span class="position-absolute top-0 start-0 m-1 badge bg-warning text-dark" style="font-size:.65rem;">Main</span>
-                                    <?php else: ?>
-                                        <form method="POST" action="/owner/listings/<?= $listing['id'] ?>/images/<?= $img['id'] ?>/primary" class="position-absolute top-0 start-0 m-1">
-                                            <?= CSRF::field() ?>
-                                            <button type="submit" class="btn btn-xs btn-outline-light" style="font-size:.65rem;padding:1px 5px;" title="Set as main">★</button>
-                                        </form>
-                                    <?php endif; ?>
-                                    <form method="POST" action="/owner/listings/<?= $listing['id'] ?>/images/<?= $img['id'] ?>/delete"
-                                          class="position-absolute top-0 end-0 m-1"
-                                          onsubmit="return confirm('Delete this photo?')">
-                                        <?= CSRF::field() ?>
-                                        <button type="submit" class="btn btn-xs btn-danger" style="font-size:.65rem;padding:1px 5px;">✕</button>
-                                    </form>
-                                </div>
+                <div class="row g-2 mb-3" id="photo-grid">
+                    <?php foreach ($images as $img): ?>
+                        <div class="col-6 col-md-3 photo-item" data-image-id="<?= $img['id'] ?>">
+                            <div class="position-relative">
+                                <img src="/uploads/listings/<?= $listing['id'] ?>/<?= htmlspecialchars($img['filename']) ?>"
+                                     class="img-fluid rounded" style="height:100px;width:100%;object-fit:cover;" alt="">
+                                <?php if ($img['is_primary']): ?>
+                                    <span class="position-absolute top-0 start-0 m-1 badge bg-warning text-dark primary-badge" style="font-size:.65rem;">Main</span>
+                                <?php else: ?>
+                                    <button type="button" class="position-absolute top-0 start-0 m-1 btn btn-warning btn-sm set-primary-btn"
+                                            style="font-size:.6rem;padding:1px 6px;line-height:1.4;" title="Set as main photo"
+                                            data-image-id="<?= $img['id'] ?>">★</button>
+                                <?php endif; ?>
+                                <button type="button" class="position-absolute top-0 end-0 m-1 btn btn-danger btn-sm delete-image-btn"
+                                        style="font-size:.6rem;padding:1px 6px;line-height:1.4;"
+                                        data-image-id="<?= $img['id'] ?>">✕</button>
                             </div>
-                        <?php endforeach; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+
+                <!-- Upload progress bar -->
+                <div id="upload-progress-wrap" class="mb-3" style="display:none;">
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span id="upload-status-text" class="text-muted">Uploading…</span>
+                        <span id="upload-pct" class="text-muted">0%</span>
                     </div>
-                <?php endif; ?>
-                <?php $remaining = 10 - count($images); ?>
-                <?php if ($remaining > 0): ?>
-                    <input type="file" name="images[]" class="form-control" multiple accept="image/jpeg,image/png,image/webp">
-                    <div class="form-text">Add up to <?= $remaining ?> more photo(s). Max 5MB each.</div>
-                <?php else: ?>
-                    <p class="text-muted small mb-0">Maximum 10 photos reached. Delete existing photos to upload new ones.</p>
-                <?php endif; ?>
+                    <div class="progress" style="height:10px;border-radius:6px;">
+                        <div id="upload-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated"
+                             role="progressbar" style="width:0%;transition:width .15s;"></div>
+                    </div>
+                </div>
+
+                <!-- File picker -->
+                <div id="upload-area">
+                    <label for="photo-input" class="btn btn-outline-secondary btn-sm" id="photo-pick-btn">
+                        <i class="bi bi-image me-1"></i> Choose Photos
+                    </label>
+                    <input type="file" id="photo-input" multiple accept="image/jpeg,image/png,image/webp" style="display:none;">
+                    <div class="form-text mt-1">
+                        Up to <span id="remaining-count"><?= 10 - count($images) ?></span> more photo(s). Max 5 MB each. JPG, PNG, WebP.
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -297,4 +310,184 @@ function searchAddress() {
 }
 document.getElementById('map-search-btn').addEventListener('click', searchAddress);
 document.getElementById('map-search').addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); searchAddress(); } });
+
+// ── Photo management (AJAX) ──────────────────────────────────────────────────
+const LISTING_ID  = <?= $listing['id'] ?>;
+const CSRF_TOKEN  = <?= json_encode(CSRF::token()) ?>;
+let   photoCount  = <?= count($images) ?>;
+
+function updateCountLabels() {
+    document.getElementById('photo-count').textContent     = photoCount;
+    document.getElementById('remaining-count').textContent = Math.max(0, 10 - photoCount);
+    document.getElementById('photo-pick-btn').disabled     = photoCount >= 10;
+}
+
+// Attach events to a .photo-item element
+function attachPhotoEvents(item) {
+    item.querySelector('.delete-image-btn')?.addEventListener('click', function () {
+        deleteImage(this.dataset.imageId, item);
+    });
+    item.querySelector('.set-primary-btn')?.addEventListener('click', function () {
+        setPrimaryImage(this.dataset.imageId);
+    });
+}
+
+document.querySelectorAll('.photo-item').forEach(attachPhotoEvents);
+
+// File picker → auto-upload
+document.getElementById('photo-input').addEventListener('change', function () {
+    if (!this.files.length) return;
+    uploadPhotos(this.files);
+    this.value = '';
+});
+
+function uploadPhotos(files) {
+    const wrap  = document.getElementById('upload-progress-wrap');
+    const bar   = document.getElementById('upload-progress-bar');
+    const label = document.getElementById('upload-status-text');
+    const pct   = document.getElementById('upload-pct');
+
+    bar.className = 'progress-bar progress-bar-striped progress-bar-animated';
+    bar.style.width = '0%';
+    label.textContent = 'Uploading…';
+    pct.textContent   = '0%';
+    wrap.style.display = 'block';
+
+    const fd = new FormData();
+    fd.append('csrf_token', CSRF_TOKEN);
+    Array.from(files).forEach(f => fd.append('files[]', f));
+
+    const xhr = new XMLHttpRequest();
+
+    xhr.upload.addEventListener('progress', e => {
+        if (!e.lengthComputable) return;
+        const p = Math.round(e.loaded / e.total * 100);
+        bar.style.width   = p + '%';
+        pct.textContent   = p + '%';
+    });
+
+    xhr.addEventListener('load', () => {
+        let data;
+        try { data = JSON.parse(xhr.responseText); } catch { data = { success: false }; }
+
+        if (data.success && data.images.length) {
+            bar.className   = 'progress-bar bg-success';
+            bar.style.width = '100%';
+            label.textContent = '✓ Uploaded!';
+            pct.textContent   = '';
+            data.images.forEach(addImageToGrid);
+            setTimeout(() => { wrap.style.display = 'none'; }, 2500);
+        } else {
+            bar.className   = 'progress-bar bg-danger';
+            label.textContent = data.error || 'Upload failed. Try again.';
+        }
+    });
+
+    xhr.addEventListener('error', () => {
+        bar.className   = 'progress-bar bg-danger';
+        label.textContent = 'Upload failed. Check connection.';
+    });
+
+    xhr.open('POST', `/owner/listings/${LISTING_ID}/images/upload`);
+    xhr.send(fd);
+}
+
+function addImageToGrid(img) {
+    photoCount++;
+    updateCountLabels();
+
+    const col = document.createElement('div');
+    col.className = 'col-6 col-md-3 photo-item';
+    col.dataset.imageId = img.id;
+
+    const isPrimary = parseInt(img.is_primary) === 1;
+    col.innerHTML = `
+        <div class="position-relative">
+            <img src="/uploads/listings/${LISTING_ID}/${img.filename}"
+                 class="img-fluid rounded" style="height:100px;width:100%;object-fit:cover;" alt="">
+            ${isPrimary
+                ? `<span class="position-absolute top-0 start-0 m-1 badge bg-warning text-dark primary-badge" style="font-size:.65rem;">Main</span>`
+                : `<button type="button" class="position-absolute top-0 start-0 m-1 btn btn-warning btn-sm set-primary-btn"
+                       style="font-size:.6rem;padding:1px 6px;line-height:1.4;" title="Set as main photo"
+                       data-image-id="${img.id}">★</button>`
+            }
+            <button type="button" class="position-absolute top-0 end-0 m-1 btn btn-danger btn-sm delete-image-btn"
+                    style="font-size:.6rem;padding:1px 6px;line-height:1.4;"
+                    data-image-id="${img.id}">✕</button>
+        </div>`;
+
+    document.getElementById('photo-grid').appendChild(col);
+    attachPhotoEvents(col);
+}
+
+function deleteImage(imageId, item) {
+    if (!confirm('Delete this photo?')) return;
+
+    const fd = new FormData();
+    fd.append('csrf_token', CSRF_TOKEN);
+
+    fetch(`/owner/listings/${LISTING_ID}/images/${imageId}/delete`, { method: 'POST', body: fd })
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success) return;
+            item.remove();
+            photoCount--;
+            updateCountLabels();
+
+            if (data.new_primary) {
+                document.querySelectorAll('.photo-item').forEach(el => {
+                    if (String(el.dataset.imageId) === String(data.new_primary)) {
+                        const btn = el.querySelector('.set-primary-btn');
+                        if (btn) {
+                            const badge = document.createElement('span');
+                            badge.className = 'position-absolute top-0 start-0 m-1 badge bg-warning text-dark primary-badge';
+                            badge.style.fontSize = '.65rem';
+                            badge.textContent = 'Main';
+                            btn.replaceWith(badge);
+                        }
+                    }
+                });
+            }
+        })
+        .catch(() => alert('Delete failed. Try again.'));
+}
+
+function setPrimaryImage(imageId) {
+    const fd = new FormData();
+    fd.append('csrf_token', CSRF_TOKEN);
+
+    fetch(`/owner/listings/${LISTING_ID}/images/${imageId}/primary`, { method: 'POST', body: fd })
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success) return;
+            document.querySelectorAll('.photo-item').forEach(el => {
+                const id      = el.dataset.imageId;
+                const wrapper = el.querySelector('.position-relative');
+                if (String(id) === String(imageId)) {
+                    const btn = wrapper.querySelector('.set-primary-btn');
+                    if (btn) {
+                        const badge = document.createElement('span');
+                        badge.className = 'position-absolute top-0 start-0 m-1 badge bg-warning text-dark primary-badge';
+                        badge.style.fontSize = '.65rem';
+                        badge.textContent = 'Main';
+                        btn.replaceWith(badge);
+                    }
+                } else {
+                    const badge = wrapper.querySelector('.primary-badge');
+                    if (badge) {
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'position-absolute top-0 start-0 m-1 btn btn-warning btn-sm set-primary-btn';
+                        btn.style.cssText = 'font-size:.6rem;padding:1px 6px;line-height:1.4;';
+                        btn.title = 'Set as main photo';
+                        btn.dataset.imageId = id;
+                        btn.textContent = '★';
+                        btn.addEventListener('click', function () { setPrimaryImage(this.dataset.imageId); });
+                        badge.replaceWith(btn);
+                    }
+                }
+            });
+        })
+        .catch(() => alert('Failed. Try again.'));
+}
 </script>
