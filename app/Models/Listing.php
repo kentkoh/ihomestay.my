@@ -1,0 +1,248 @@
+<?php
+
+class Listing {
+    public static function create(array $data): int {
+        $pdo  = Database::get();
+        $stmt = $pdo->prepare(
+            "INSERT INTO listings
+             (owner_id, title, slug, description, address, state_id, city_id, postcode,
+              latitude, longitude, price_per_night, min_nights, max_guests, bedrooms,
+              bathrooms, whatsapp, status)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+        );
+        $stmt->execute([
+            $data['owner_id'],
+            $data['title'],
+            '',
+            $data['description'],
+            $data['address'],
+            $data['state_id'],
+            $data['city_id'],
+            $data['postcode'] ?? '',
+            $data['latitude']  ?: null,
+            $data['longitude'] ?: null,
+            $data['price_per_night'],
+            $data['min_nights'] ?? 1,
+            $data['max_guests'] ?? 1,
+            $data['bedrooms']   ?? 1,
+            $data['bathrooms']  ?? 1,
+            $data['whatsapp']   ?? '',
+            $data['status']     ?? 'pending',
+        ]);
+        $id   = (int) $pdo->lastInsertId();
+        $slug = self::makeSlug($data['title']) . '-' . $id;
+        $pdo->prepare("UPDATE listings SET slug=? WHERE id=?")->execute([$slug, $id]);
+        return $id;
+    }
+
+    public static function update(int $id, array $data): void {
+        $stmt = Database::get()->prepare(
+            "UPDATE listings SET
+             title=?, description=?, address=?, state_id=?, city_id=?, postcode=?,
+             latitude=?, longitude=?, price_per_night=?, min_nights=?, max_guests=?,
+             bedrooms=?, bathrooms=?, whatsapp=?, status=?, rejection_reason=?,
+             updated_at=NOW()
+             WHERE id=?"
+        );
+        $stmt->execute([
+            $data['title'],
+            $data['description'],
+            $data['address'],
+            $data['state_id'],
+            $data['city_id'],
+            $data['postcode'] ?? '',
+            $data['latitude']  ?: null,
+            $data['longitude'] ?: null,
+            $data['price_per_night'],
+            $data['min_nights'] ?? 1,
+            $data['max_guests'] ?? 1,
+            $data['bedrooms']   ?? 1,
+            $data['bathrooms']  ?? 1,
+            $data['whatsapp']   ?? '',
+            $data['status'],
+            $data['rejection_reason'] ?? null,
+            $id,
+        ]);
+    }
+
+    public static function delete(int $id): void {
+        Database::get()->prepare("DELETE FROM listings WHERE id=?")->execute([$id]);
+    }
+
+    public static function findById(int $id): ?array {
+        $stmt = Database::get()->prepare("SELECT * FROM listings WHERE id=?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    public static function findByIdWithDetails(int $id): ?array {
+        $stmt = Database::get()->prepare(
+            "SELECT l.*, u.name as owner_name, u.email as owner_email,
+                    s.name as state_name, c.name as city_name
+             FROM listings l
+             JOIN users u  ON l.owner_id  = u.id
+             JOIN states s ON l.state_id  = s.id
+             JOIN cities c ON l.city_id   = c.id
+             WHERE l.id=?"
+        );
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    public static function byOwner(int $ownerId): array {
+        $stmt = Database::get()->prepare(
+            "SELECT l.*, s.name as state_name, c.name as city_name,
+                    (SELECT filename FROM listing_images
+                     WHERE listing_id=l.id AND is_primary=1 LIMIT 1) as primary_image
+             FROM listings l
+             JOIN states s ON l.state_id = s.id
+             JOIN cities c ON l.city_id  = c.id
+             WHERE l.owner_id=?
+             ORDER BY l.created_at DESC"
+        );
+        $stmt->execute([$ownerId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function countByOwner(int $ownerId): int {
+        $stmt = Database::get()->prepare(
+            "SELECT COUNT(*) FROM listings WHERE owner_id=? AND status != 'suspended'"
+        );
+        $stmt->execute([$ownerId]);
+        return (int) $stmt->fetchColumn();
+    }
+
+    public static function allForAdmin(?string $status = null): array {
+        $pdo = Database::get();
+        $sql = "SELECT l.*, u.name as owner_name, s.name as state_name, c.name as city_name,
+                       (SELECT filename FROM listing_images
+                        WHERE listing_id=l.id AND is_primary=1 LIMIT 1) as primary_image
+                FROM listings l
+                JOIN users u  ON l.owner_id  = u.id
+                JOIN states s ON l.state_id  = s.id
+                JOIN cities c ON l.city_id   = c.id";
+        if ($status) {
+            $stmt = $pdo->prepare($sql . " WHERE l.status=? ORDER BY l.created_at DESC");
+            $stmt->execute([$status]);
+        } else {
+            $stmt = $pdo->query($sql . " ORDER BY l.created_at DESC");
+        }
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function countByStatus(): array {
+        $rows = Database::get()
+            ->query("SELECT status, COUNT(*) as cnt FROM listings GROUP BY status")
+            ->fetchAll(PDO::FETCH_ASSOC);
+        $counts = ['all' => 0, 'pending' => 0, 'published' => 0, 'rejected' => 0, 'suspended' => 0, 'draft' => 0];
+        foreach ($rows as $row) {
+            $counts[$row['status']] = (int) $row['cnt'];
+            $counts['all'] += (int) $row['cnt'];
+        }
+        return $counts;
+    }
+
+    public static function approve(int $id): void {
+        Database::get()->prepare(
+            "UPDATE listings SET status='published', rejection_reason=NULL, updated_at=NOW() WHERE id=?"
+        )->execute([$id]);
+    }
+
+    public static function reject(int $id, string $reason): void {
+        Database::get()->prepare(
+            "UPDATE listings SET status='rejected', rejection_reason=?, updated_at=NOW() WHERE id=?"
+        )->execute([$reason, $id]);
+    }
+
+    public static function suspend(int $id): void {
+        Database::get()->prepare(
+            "UPDATE listings SET status='suspended', updated_at=NOW() WHERE id=?"
+        )->execute([$id]);
+    }
+
+    public static function syncFacilities(int $listingId, array $facilityIds): void {
+        $pdo = Database::get();
+        $pdo->prepare("DELETE FROM listing_facilities WHERE listing_id=?")->execute([$listingId]);
+        if (!empty($facilityIds)) {
+            $stmt = $pdo->prepare(
+                "INSERT INTO listing_facilities (listing_id, facility_id) VALUES (?,?)"
+            );
+            foreach ($facilityIds as $fid) {
+                $stmt->execute([$listingId, (int) $fid]);
+            }
+        }
+    }
+
+    public static function getFacilityIds(int $listingId): array {
+        $stmt = Database::get()->prepare(
+            "SELECT facility_id FROM listing_facilities WHERE listing_id=?"
+        );
+        $stmt->execute([$listingId]);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    public static function addImage(int $listingId, string $filename, bool $isPrimary): void {
+        $pdo      = Database::get();
+        $sortStmt = $pdo->prepare(
+            "SELECT COALESCE(MAX(sort_order), -1) + 1 FROM listing_images WHERE listing_id=?"
+        );
+        $sortStmt->execute([$listingId]);
+        $sortOrder = (int) $sortStmt->fetchColumn();
+
+        $pdo->prepare(
+            "INSERT INTO listing_images (listing_id, filename, is_primary, sort_order)
+             VALUES (?, ?, ?, ?)"
+        )->execute([$listingId, $filename, $isPrimary ? 1 : 0, $sortOrder]);
+    }
+
+    public static function getImages(int $listingId): array {
+        $stmt = Database::get()->prepare(
+            "SELECT * FROM listing_images WHERE listing_id=? ORDER BY sort_order"
+        );
+        $stmt->execute([$listingId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function imageCount(int $listingId): int {
+        $stmt = Database::get()->prepare(
+            "SELECT COUNT(*) FROM listing_images WHERE listing_id=?"
+        );
+        $stmt->execute([$listingId]);
+        return (int) $stmt->fetchColumn();
+    }
+
+    public static function deleteImage(int $imageId, int $listingId): ?string {
+        $stmt = Database::get()->prepare(
+            "SELECT filename FROM listing_images WHERE id=? AND listing_id=?"
+        );
+        $stmt->execute([$imageId, $listingId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$row) return null;
+
+        Database::get()->prepare("DELETE FROM listing_images WHERE id=?")->execute([$imageId]);
+
+        $remaining = Database::get()->prepare(
+            "SELECT COUNT(*) FROM listing_images WHERE listing_id=? AND is_primary=1"
+        );
+        $remaining->execute([$listingId]);
+        if ($remaining->fetchColumn() == 0) {
+            Database::get()->prepare(
+                "UPDATE listing_images SET is_primary=1 WHERE listing_id=? ORDER BY sort_order LIMIT 1"
+            )->execute([$listingId]);
+        }
+
+        return $row['filename'];
+    }
+
+    public static function setPrimaryImage(int $imageId, int $listingId): void {
+        $pdo = Database::get();
+        $pdo->prepare("UPDATE listing_images SET is_primary=0 WHERE listing_id=?")->execute([$listingId]);
+        $pdo->prepare("UPDATE listing_images SET is_primary=1 WHERE id=? AND listing_id=?")->execute([$imageId, $listingId]);
+    }
+
+    private static function makeSlug(string $title): string {
+        $slug = strtolower($title);
+        $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
+        return trim($slug, '-');
+    }
+}

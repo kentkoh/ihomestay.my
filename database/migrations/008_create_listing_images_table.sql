@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS listing_images (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    listing_id INT UNSIGNED NOT NULL,
+    filename VARCHAR(255) NOT NULL,
+    is_primary TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
+    sort_order SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (listing_id) REFERENCES listings(id) ON DELETE CASCADE,
+    INDEX idx_listing (listing_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

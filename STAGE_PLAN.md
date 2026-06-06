@@ -80,16 +80,19 @@ Deliverables: Admin can manage Malaysia locations and facilities
 ## Stage 3 — Listing Module
 **Goal:** Owners and admin can create/manage homestay listings.
 
+Map: Leaflet.js + OpenStreetMap (free, no API key). Owner clicks map to drop pin → lat/lng saved to DB. Public page shows pinned location. Address search via Nominatim (free OSM geocoder).
+
 Tasks:
-- [ ] Migration: listings, listing_images, listing_facilities tables
-- [ ] Owner create listing form
+- [ ] Migration: listings, listing_images, listing_facilities tables (include latitude, longitude columns)
+- [ ] Owner create listing form (with Leaflet map pin picker)
 - [ ] Owner edit own listing
 - [ ] Image upload (MIME check, rename, size limit)
 - [ ] Admin listing approval / rejection / suspension
 - [ ] Listing status flow (draft → pending → published)
 - [ ] Free owner: max 3 listings enforcement
+- [ ] Map pin display on public listing detail page
 
-Deliverables: Owner can submit listing, admin can approve/reject
+Deliverables: Owner can submit listing with map pin, admin can approve/reject
 
 ---
 
