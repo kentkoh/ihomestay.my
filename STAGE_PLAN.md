@@ -27,7 +27,7 @@ Tasks:
 
 ---
 
-## Stage 1 — Core Database and Auth ✅ (code done, deploy pending)
+## Stage 1 — Core Database and Auth ✅
 **Goal:** Create database foundation and login/register system.
 
 Tasks:
@@ -47,14 +47,14 @@ Tasks:
 - [x] View: owner/dashboard.php
 - [x] Seeder: AdminSeeder.php
 - [x] Updated router with all auth routes
-- [ ] Push Stage 1 code to GitHub
-- [ ] Pull to server via cPanel Git Version Control
-- [ ] Run: php database/migrate.php on server
-- [ ] Run: php database/seeders/AdminSeeder.php on server
-- [ ] Test login at https://new.ihomestay.my/login
-- [ ] Test register at https://new.ihomestay.my/register
-- [ ] Confirm admin dashboard loads
-- [ ] Confirm owner dashboard loads
+- [x] Push Stage 1 code to GitHub
+- [x] Pull to server via cPanel Git Version Control
+- [x] Run: php database/migrate.php on server
+- [x] Run: php database/seeders/AdminSeeder.php on server
+- [x] Test login at https://new.ihomestay.my/login
+- [x] Test register at https://new.ihomestay.my/register
+- [x] Confirm admin dashboard loads
+- [x] Confirm owner dashboard loads
 
 Default admin account (change password after first login):
 - Email: admin@ihomestay.my

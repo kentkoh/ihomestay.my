@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS cities (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    state_id INT UNSIGNED NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    slug VARCHAR(100) NOT NULL,
+    FOREIGN KEY (state_id) REFERENCES states(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_city_state (state_id, slug)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
