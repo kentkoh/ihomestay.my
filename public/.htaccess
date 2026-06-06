@@ -19,8 +19,3 @@ RewriteRule ^ index.php [L]
     Deny from all
 </FilesMatch>
 
-# Deny access to PHP files in uploads (security)
-<FilesMatch "\.php$">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
