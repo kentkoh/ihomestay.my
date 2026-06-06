@@ -4,8 +4,10 @@
 # Design assets folder (large PSD/image files, not part of codebase)
 New folder/
 
-# Uploads and user content
-uploads/
+# Uploads and user content (ignore files, track .htaccess)
+/uploads/
+public/uploads/*
+!public/uploads/.htaccess
 
 # Logs
 storage/logs/

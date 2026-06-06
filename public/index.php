@@ -4,7 +4,7 @@ define('ROOT_PATH', dirname(__DIR__));
 define('APP_PATH', ROOT_PATH . '/app');
 define('CONFIG_PATH', ROOT_PATH . '/config');
 define('STORAGE_PATH', ROOT_PATH . '/storage');
-define('UPLOAD_PATH', ROOT_PATH . '/uploads');
+define('UPLOAD_PATH', ROOT_PATH . '/public/uploads');
 
 require_once CONFIG_PATH . '/app.php';
 require_once APP_PATH . '/Core/Database.php';
