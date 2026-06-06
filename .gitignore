@@ -1,0 +1,31 @@
+# Environment
+.env
+
+# Design assets folder (large PSD/image files, not part of codebase)
+New folder/
+
+# Uploads and user content
+uploads/
+
+# Logs
+storage/logs/
+
+# Migration export files (may contain PII)
+storage/migration/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# PHP
+*.log
+
+# Composer (not used, but safe to include)
+vendor/
+composer.lock

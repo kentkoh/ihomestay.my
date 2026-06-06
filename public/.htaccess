@@ -1,0 +1,26 @@
+Options -Indexes
+
+RewriteEngine On
+
+# Redirect to HTTPS (enable on production)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Allow direct access to real files and directories
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Route everything else to index.php
+RewriteRule ^ index.php [L]
+
+# Deny access to hidden files
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Deny access to PHP files in uploads (security)
+<FilesMatch "\.php$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
