@@ -60,12 +60,15 @@ $router->post('/admin/facilities/{id}/delete', ['AdminFacilityController', 'dele
 $router->post('/admin/facilities/{id}/toggle', ['AdminFacilityController', 'toggle']);
 
 // Admin — listings
-$router->get('/admin/listings',                   ['AdminListingController', 'index']);
-$router->post('/admin/listings/{id}/approve',     ['AdminListingController', 'approve']);
-$router->post('/admin/listings/{id}/reject',      ['AdminListingController', 'reject']);
-$router->post('/admin/listings/{id}/suspend',     ['AdminListingController', 'suspend']);
-$router->post('/admin/listings/{id}/feature',     ['AdminListingController', 'feature']);
-$router->post('/admin/listings/{id}/unfeature',   ['AdminListingController', 'unfeature']);
+$router->get('/admin/listings',                    ['AdminListingController', 'index']);
+$router->get('/admin/listings/{id}/edit',          ['AdminListingController', 'edit']);
+$router->post('/admin/listings/{id}/update',       ['AdminListingController', 'update']);
+$router->post('/admin/listings/{id}/delete',       ['AdminListingController', 'deleteListing']);
+$router->post('/admin/listings/{id}/approve',      ['AdminListingController', 'approve']);
+$router->post('/admin/listings/{id}/reject',       ['AdminListingController', 'reject']);
+$router->post('/admin/listings/{id}/suspend',      ['AdminListingController', 'suspend']);
+$router->post('/admin/listings/{id}/feature',      ['AdminListingController', 'feature']);
+$router->post('/admin/listings/{id}/unfeature',    ['AdminListingController', 'unfeature']);
 
 // Admin — owners
 $router->get('/admin/owners',                    ['AdminOwnerController', 'index']);

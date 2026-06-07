@@ -76,4 +76,98 @@ class AdminListingController {
         header('Location: /admin/listings?status=published');
         exit;
     }
+
+    public function edit(string $id): void {
+        Auth::requireAdmin();
+        $listing = Listing::findByIdWithDetails((int) $id);
+        if (!$listing) {
+            http_response_code(404);
+            echo 'Listing not found.';
+            return;
+        }
+        $states          = State::all();
+        $cities          = City::all();
+        $facilities      = Facility::activeGrouped();
+        $selectedFacIds  = Listing::getFacilityIds((int) $id);
+        $images          = Listing::getImages((int) $id);
+        $title           = 'Edit Listing #' . $id;
+        ob_start();
+        require APP_PATH . '/Views/admin/listings/edit.php';
+        $content = ob_get_clean();
+        require APP_PATH . '/Views/layouts/admin.php';
+    }
+
+    public function update(string $id): void {
+        Auth::requireAdmin();
+        CSRF::verify();
+        $listing = Listing::findById((int) $id);
+        if (!$listing) {
+            header('Location: /admin/listings');
+            exit;
+        }
+
+        $errors = [];
+        if (trim($_POST['title'] ?? '') === '') $errors[] = 'Title is required.';
+        if (!is_numeric($_POST['price_per_night'] ?? '') || (float) $_POST['price_per_night'] <= 0) $errors[] = 'A valid price is required.';
+        if (empty($_POST['state_id'])) $errors[] = 'State is required.';
+        if (empty($_POST['city_id']))  $errors[] = 'City is required.';
+
+        if (!empty($errors)) {
+            $_SESSION['flash']['danger'] = implode('<br>', $errors);
+            header("Location: /admin/listings/$id/edit");
+            exit;
+        }
+
+        $newStatus = in_array($_POST['status'] ?? '', ['pending','published','rejected','suspended','draft'], true)
+            ? $_POST['status']
+            : $listing['status'];
+
+        Listing::update((int) $id, [
+            'title'            => trim($_POST['title']),
+            'description'      => trim($_POST['description'] ?? ''),
+            'address'          => trim($_POST['address'] ?? ''),
+            'state_id'         => (int) $_POST['state_id'],
+            'city_id'          => (int) $_POST['city_id'],
+            'postcode'         => trim($_POST['postcode'] ?? ''),
+            'latitude'         => $_POST['latitude'] !== '' ? $_POST['latitude'] : null,
+            'longitude'        => $_POST['longitude'] !== '' ? $_POST['longitude'] : null,
+            'price_per_night'  => (float) $_POST['price_per_night'],
+            'min_nights'       => max(1, (int) ($_POST['min_nights']  ?? 1)),
+            'max_guests'       => max(1, (int) ($_POST['max_guests']  ?? 1)),
+            'bedrooms'         => max(0, (int) ($_POST['bedrooms']    ?? 0)),
+            'bathrooms'        => max(1, (int) ($_POST['bathrooms']   ?? 1)),
+            'whatsapp'         => $listing['whatsapp'],
+            'status'           => $newStatus,
+            'rejection_reason' => $newStatus === 'rejected' ? trim($_POST['rejection_reason'] ?? '') : null,
+        ]);
+
+        Listing::syncFacilities((int) $id, array_map('intval', $_POST['facilities'] ?? []));
+
+        $_SESSION['flash']['success'] = 'Listing updated successfully.';
+        header('Location: /admin/listings');
+        exit;
+    }
+
+    public function deleteListing(string $id): void {
+        Auth::requireAdmin();
+        CSRF::verify();
+        $listing = Listing::findById((int) $id);
+        if (!$listing) {
+            header('Location: /admin/listings');
+            exit;
+        }
+
+        $images = Listing::getImages((int) $id);
+        foreach ($images as $img) {
+            $path = UPLOAD_PATH . '/listings/' . $id . '/' . $img['filename'];
+            if (file_exists($path)) unlink($path);
+        }
+        $dir = UPLOAD_PATH . '/listings/' . $id;
+        if (is_dir($dir)) @rmdir($dir);
+
+        Listing::delete((int) $id);
+        $_SESSION['flash']['success'] = "Listing \"{$listing['title']}\" deleted.";
+        header('Location: /admin/listings');
+        exit;
+    }
 }

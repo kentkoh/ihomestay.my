@@ -85,7 +85,20 @@ $statusColors  = ['pending'=>'warning','published'=>'success','rejected'=>'dange
                                 <?php endif; ?>
                             </td>
                             <td class="text-end pe-3">
-                                <div class="d-flex gap-1 justify-content-end">
+                                <div class="d-flex gap-1 justify-content-end flex-wrap">
+                                    <!-- Always available: view public page and edit -->
+                                    <?php if ($l['status'] === 'published'): ?>
+                                        <a href="/listing/<?= htmlspecialchars($l['slug']) ?>" target="_blank"
+                                           class="btn btn-sm btn-outline-secondary" title="View public page">
+                                            <i class="bi bi-box-arrow-up-right"></i>
+                                        </a>
+                                    <?php endif; ?>
+                                    <a href="/admin/listings/<?= $l['id'] ?>/edit"
+                                       class="btn btn-sm btn-outline-primary" title="Edit listing">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+
+                                    <!-- Status-specific actions -->
                                     <?php if ($l['status'] === 'pending'): ?>
                                         <form method="POST" action="/admin/listings/<?= $l['id'] ?>/approve">
                                             <?= CSRF::field() ?>
@@ -133,6 +146,15 @@ $statusColors  = ['pending'=>'warning','published'=>'success','rejected'=>'dange
                                             </button>
                                         </form>
                                     <?php endif; ?>
+
+                                    <!-- Delete — always available -->
+                                    <form method="POST" action="/admin/listings/<?= $l['id'] ?>/delete"
+                                          onsubmit="return confirm('Permanently delete \"<?= addslashes(htmlspecialchars($l['title'])) ?>\"? This cannot be undone.')">
+                                        <?= CSRF::field() ?>
+                                        <button class="btn btn-sm btn-outline-danger" title="Delete listing">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>
