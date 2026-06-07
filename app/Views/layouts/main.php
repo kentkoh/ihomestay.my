@@ -55,21 +55,21 @@
             <div class="col-12 col-md-4">
                 <div class="fw-bold mb-2" style="color:#fff;font-size:1.1rem;">ihomestay.my</div>
                 <div class="small" style="color:#64748b;max-width:260px;line-height:1.7;">
-                    Direktori homestay Malaysia. Tempah terus dari tuan rumah — tiada caj platform, tiada orang tengah.
+                    Malaysia's homestay directory. Book direct from owners — no platform fees, no middleman.
                 </div>
             </div>
             <div class="col-6 col-md-2">
-                <div class="fw-semibold small mb-2" style="color:#94a3b8;">Pelancong</div>
+                <div class="fw-semibold small mb-2" style="color:#94a3b8;">Guests</div>
                 <div class="d-flex flex-column gap-1">
-                    <a href="/search" class="small" style="color:#64748b;text-decoration:none;">Cari Homestay</a>
-                    <a href="/articles" class="small" style="color:#64748b;text-decoration:none;">Artikel &amp; Tips</a>
+                    <a href="/search" class="small" style="color:#64748b;text-decoration:none;">Search Homestays</a>
+                    <a href="/articles" class="small" style="color:#64748b;text-decoration:none;">Articles &amp; Tips</a>
                 </div>
             </div>
             <div class="col-6 col-md-2">
-                <div class="fw-semibold small mb-2" style="color:#94a3b8;">Tuan Rumah</div>
+                <div class="fw-semibold small mb-2" style="color:#94a3b8;">Owners</div>
                 <div class="d-flex flex-column gap-1">
-                    <a href="/register" class="small" style="color:#64748b;text-decoration:none;">Daftar Percuma</a>
-                    <a href="/login" class="small" style="color:#64748b;text-decoration:none;">Log Masuk</a>
+                    <a href="/register" class="small" style="color:#64748b;text-decoration:none;">List for Free</a>
+                    <a href="/login" class="small" style="color:#64748b;text-decoration:none;">Login</a>
                 </div>
             </div>
         </div>

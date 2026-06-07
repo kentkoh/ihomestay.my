@@ -267,6 +267,71 @@ class Listing {
         $pdo->prepare("UPDATE listing_images SET is_primary=1 WHERE id=? AND listing_id=?")->execute([$imageId, $listingId]);
     }
 
+    public static function search(array $filters = [], int $page = 1, int $perPage = 12): array {
+        $pdo = Database::get();
+        [$where, $params] = self::buildSearchWhere($filters);
+        $offset = ($page - 1) * $perPage;
+
+        $sql = "SELECT l.*, s.name as state_name, c.name as city_name,
+                       (SELECT filename FROM listing_images WHERE listing_id=l.id AND is_primary=1 LIMIT 1) as primary_image
+                FROM listings l
+                JOIN states s ON l.state_id = s.id
+                JOIN cities c ON l.city_id  = c.id
+                WHERE l.status = 'published'" . $where . "
+                ORDER BY l.is_featured DESC, l.created_at DESC
+                LIMIT :limit OFFSET :offset";
+
+        $stmt = $pdo->prepare($sql);
+        foreach ($params as $k => $v) {
+            $stmt->bindValue($k, $v);
+        }
+        $stmt->bindValue(':limit',  $perPage, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset,  PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function countSearch(array $filters = []): int {
+        $pdo = Database::get();
+        [$where, $params] = self::buildSearchWhere($filters);
+
+        $sql  = "SELECT COUNT(*) FROM listings l
+                 JOIN states s ON l.state_id = s.id
+                 JOIN cities c ON l.city_id  = c.id
+                 WHERE l.status = 'published'" . $where;
+        $stmt = $pdo->prepare($sql);
+        foreach ($params as $k => $v) {
+            $stmt->bindValue($k, $v);
+        }
+        $stmt->execute();
+        return (int) $stmt->fetchColumn();
+    }
+
+    private static function buildSearchWhere(array $filters): array {
+        $where  = '';
+        $params = [];
+
+        if (!empty($filters['state_id'])) {
+            $where .= ' AND l.state_id = :state_id';
+            $params[':state_id'] = (int) $filters['state_id'];
+        }
+        if (!empty($filters['city_id'])) {
+            $where .= ' AND l.city_id = :city_id';
+            $params[':city_id'] = (int) $filters['city_id'];
+        }
+        if (!empty($filters['q'])) {
+            $where .= ' AND (l.title LIKE :q1 OR l.description LIKE :q2)';
+            $params[':q1'] = '%' . $filters['q'] . '%';
+            $params[':q2'] = '%' . $filters['q'] . '%';
+        }
+        if (!empty($filters['guests'])) {
+            $where .= ' AND l.max_guests >= :guests';
+            $params[':guests'] = (int) $filters['guests'];
+        }
+
+        return [$where, $params];
+    }
+
     private static function makeSlug(string $title): string {
         $slug = strtolower($title);
         $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);

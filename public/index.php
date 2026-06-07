@@ -35,6 +35,9 @@ $router = new Router();
 // Homepage
 $router->get('/', ['PublicController', 'home']);
 
+// Public search (must be before parameterised state/city routes)
+$router->get('/search', ['PublicController', 'search']);
+
 // Auth
 $router->get('/login',     ['AuthController', 'showLogin']);
 $router->post('/login',    ['AuthController', 'handleLogin']);
@@ -83,5 +86,9 @@ $router->post('/owner/listings/{id}/delete',                          ['OwnerLis
 $router->post('/owner/listings/{id}/images/upload',                   ['OwnerListingController', 'uploadImages']);
 $router->post('/owner/listings/{listingId}/images/{imageId}/delete',  ['OwnerListingController', 'deleteImage']);
 $router->post('/owner/listings/{listingId}/images/{imageId}/primary', ['OwnerListingController', 'setPrimary']);
+
+// Public state/city pages (parameterised — must be last)
+$router->get('/{stateSlug}',             ['PublicController', 'stateListings']);
+$router->get('/{stateSlug}/{citySlug}',  ['PublicController', 'cityListings']);
 
 $router->dispatch();
