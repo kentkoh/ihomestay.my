@@ -93,10 +93,11 @@ function searchPageUrl(int $page, array $filters): string {
                 <div class="card listing-card h-100 shadow-sm overflow-hidden">
                     <div class="position-relative">
                         <?php if ($listing['primary_image']): ?>
-                            <img src="/uploads/listings/<?= htmlspecialchars($listing['primary_image']) ?>"
+                            <img src="/uploads/listings/<?= (int)$listing['id'] ?>/<?= htmlspecialchars($listing['primary_image']) ?>"
                                  class="listing-thumb"
                                  alt="<?= htmlspecialchars($listing['title']) ?>"
-                                 loading="lazy">
+                                 loading="lazy"
+                                 onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'listing-thumb-ph',innerHTML:'<i class=\'bi bi-image\' style=\'font-size:2rem\'></i>'}))">
                         <?php else: ?>
                             <div class="listing-thumb-ph">
                                 <i class="bi bi-image" style="font-size:2rem;"></i>
