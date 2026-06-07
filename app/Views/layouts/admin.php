@@ -52,20 +52,24 @@
 
     <div class="sidebar-label">Management</div>
     <nav class="d-flex flex-column gap-1 mb-4">
-        <a href="/admin/facilities" class="sidebar-link <?= str_starts_with($_SERVER['REQUEST_URI'], '/admin/facilities') ? 'active' : '' ?>">
-            <i class="bi bi-grid-3x3-gap-fill"></i> Facilities
-        </a>
-        <a href="#" class="sidebar-link text-secondary" style="opacity:.4;pointer-events:none;">
-            <i class="bi bi-geo-alt-fill"></i> Locations <span class="ms-auto badge bg-secondary" style="font-size:.6rem;">Soon</span>
-        </a>
         <a href="/admin/listings" class="sidebar-link <?= str_starts_with($_SERVER['REQUEST_URI'], '/admin/listings') ? 'active' : '' ?>">
             <i class="bi bi-house-fill"></i> Listings
+        </a>
+        <a href="/admin/owners" class="sidebar-link <?= str_starts_with($_SERVER['REQUEST_URI'], '/admin/owners') ? 'active' : '' ?>">
+            <i class="bi bi-people-fill"></i> Owners
         </a>
         <a href="/admin/articles" class="sidebar-link <?= str_starts_with($_SERVER['REQUEST_URI'], '/admin/articles') ? 'active' : '' ?>">
             <i class="bi bi-newspaper"></i> Articles
         </a>
-        <a href="/admin/owners" class="sidebar-link <?= str_starts_with($_SERVER['REQUEST_URI'], '/admin/owners') ? 'active' : '' ?>">
-            <i class="bi bi-people-fill"></i> Owners
+        <a href="/admin/facilities" class="sidebar-link <?= str_starts_with($_SERVER['REQUEST_URI'], '/admin/facilities') ? 'active' : '' ?>">
+            <i class="bi bi-grid-3x3-gap-fill"></i> Facilities
+        </a>
+    </nav>
+
+    <div class="sidebar-label">Monetisation</div>
+    <nav class="d-flex flex-column gap-1 mb-4">
+        <a href="/admin/featured-packages" class="sidebar-link <?= str_starts_with($_SERVER['REQUEST_URI'], '/admin/featured-packages') ? 'active' : '' ?>">
+            <i class="bi bi-star-fill"></i> Featured Packages
         </a>
     </nav>
 
