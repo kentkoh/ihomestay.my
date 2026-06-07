@@ -127,12 +127,18 @@ class Listing {
     public static function publishedRecent(int $limit = 6): array {
         $st = Database::get()->prepare(
             "SELECT l.*, s.name as state_name, c.name as city_name,
-                    (SELECT filename FROM listing_images WHERE listing_id=l.id AND is_primary=1 LIMIT 1) as primary_image
+                    (SELECT filename FROM listing_images WHERE listing_id=l.id AND is_primary=1 LIMIT 1) as primary_image,
+                    (l.is_featured = 1 AND (l.featured_until IS NULL OR l.featured_until > NOW())) as is_featured_active,
+                    (u.verification_status = 'verified' OR u.role = 'admin') as owner_is_verified
              FROM listings l
              JOIN states s ON l.state_id = s.id
              JOIN cities c ON l.city_id  = c.id
+             JOIN users u  ON l.owner_id = u.id
              WHERE l.status = 'published'
-             ORDER BY (l.is_featured = 1 AND (l.featured_until IS NULL OR l.featured_until > NOW())) DESC, l.created_at DESC
+             ORDER BY
+                 (l.is_featured = 1 AND (l.featured_until IS NULL OR l.featured_until > NOW())) DESC,
+                 (u.verification_status = 'verified' OR u.role = 'admin') DESC,
+                 l.created_at DESC
              LIMIT :lim"
         );
         $st->bindValue(':lim', $limit, PDO::PARAM_INT);
@@ -284,9 +290,11 @@ class Listing {
         $stmt = Database::get()->prepare(
             "SELECT l.*, s.name as state_name, s.slug as state_slug,
                     c.name as city_name, c.slug as city_slug,
-                    u.name as owner_name, u.verification_status as owner_verification_status,
+                    u.name as owner_name, u.role as owner_role,
+                    (u.verification_status = 'verified' OR u.role = 'admin') as owner_is_verified,
                     op.company_name as owner_company, op.about as owner_bio, op.profile_photo as owner_photo,
-                    op.verified_at
+                    op.verified_at,
+                    (l.is_featured = 1 AND (l.featured_until IS NULL OR l.featured_until > NOW())) as is_featured_active
              FROM listings l
              JOIN states s  ON l.state_id  = s.id
              JOIN cities c  ON l.city_id   = c.id
@@ -321,12 +329,18 @@ class Listing {
         $offset = ($page - 1) * $perPage;
 
         $sql = "SELECT l.*, s.name as state_name, c.name as city_name,
-                       (SELECT filename FROM listing_images WHERE listing_id=l.id AND is_primary=1 LIMIT 1) as primary_image
+                       (SELECT filename FROM listing_images WHERE listing_id=l.id AND is_primary=1 LIMIT 1) as primary_image,
+                       (l.is_featured = 1 AND (l.featured_until IS NULL OR l.featured_until > NOW())) as is_featured_active,
+                       (u.verification_status = 'verified' OR u.role = 'admin') as owner_is_verified
                 FROM listings l
                 JOIN states s ON l.state_id = s.id
                 JOIN cities c ON l.city_id  = c.id
+                JOIN users u  ON l.owner_id = u.id
                 WHERE l.status = 'published'" . $where . "
-                ORDER BY (l.is_featured = 1 AND (l.featured_until IS NULL OR l.featured_until > NOW())) DESC, l.created_at DESC
+                ORDER BY
+                    (l.is_featured = 1 AND (l.featured_until IS NULL OR l.featured_until > NOW())) DESC,
+                    (u.verification_status = 'verified' OR u.role = 'admin') DESC,
+                    l.created_at DESC
                 LIMIT :limit OFFSET :offset";
 
         $stmt = $pdo->prepare($sql);
@@ -353,6 +367,44 @@ class Listing {
         }
         $stmt->execute();
         return (int) $stmt->fetchColumn();
+    }
+
+    public static function similarListings(int $excludeId, int $cityId, int $stateId, int $limit = 6): array {
+        $pdo     = Database::get();
+        $baseSql = "SELECT l.*, s.name as state_name, c.name as city_name,
+                           (SELECT filename FROM listing_images WHERE listing_id=l.id AND is_primary=1 LIMIT 1) as primary_image,
+                           (l.is_featured = 1 AND (l.featured_until IS NULL OR l.featured_until > NOW())) as is_featured_active,
+                           (u.verification_status = 'verified' OR u.role = 'admin') as owner_is_verified
+                    FROM listings l
+                    JOIN states s ON l.state_id = s.id
+                    JOIN cities c ON l.city_id  = c.id
+                    JOIN users u  ON l.owner_id = u.id
+                    WHERE l.status = 'published'";
+
+        $stmt = $pdo->prepare($baseSql . " AND l.id != ? AND l.city_id = ?
+                    ORDER BY is_featured_active DESC, owner_is_verified DESC, RAND()
+                    LIMIT ?");
+        $stmt->bindValue(1, $excludeId, PDO::PARAM_INT);
+        $stmt->bindValue(2, $cityId,    PDO::PARAM_INT);
+        $stmt->bindValue(3, $limit,     PDO::PARAM_INT);
+        $stmt->execute();
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (count($results) < $limit) {
+            $needed     = $limit - count($results);
+            $excludeIds = array_map('intval', array_merge([$excludeId], array_column($results, 'id')));
+            $ph         = implode(',', $excludeIds);
+
+            $stmt2 = $pdo->prepare($baseSql . " AND l.id NOT IN ($ph) AND l.state_id = ?
+                        ORDER BY is_featured_active DESC, owner_is_verified DESC, RAND()
+                        LIMIT ?");
+            $stmt2->bindValue(1, $stateId, PDO::PARAM_INT);
+            $stmt2->bindValue(2, $needed,  PDO::PARAM_INT);
+            $stmt2->execute();
+            $results = array_merge($results, $stmt2->fetchAll(PDO::FETCH_ASSOC));
+        }
+
+        return $results;
     }
 
     private static function buildSearchWhere(array $filters): array {

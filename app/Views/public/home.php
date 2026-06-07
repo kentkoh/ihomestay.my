@@ -81,10 +81,12 @@
     border: none;
     border-radius: 16px;
     overflow: hidden;
+    position: relative;
     box-shadow: 0 2px 12px rgba(0,0,0,.07);
     transition: transform .25s, box-shadow .25s;
     background: #fff;
 }
+.featured-ribbon { position:absolute; top:18px; right:-30px; background:#e84c2b; color:#fff; font-size:.62rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; padding:5px 44px; transform:rotate(45deg); z-index:3; box-shadow:0 2px 8px rgba(0,0,0,.25); pointer-events:none; }
 .listing-card:hover { transform: translateY(-4px); box-shadow: 0 8px 28px rgba(0,0,0,.12); }
 .listing-thumb { height: 200px; object-fit: cover; width: 100%; background: #e2e8f0; }
 .listing-thumb-placeholder {
@@ -245,6 +247,9 @@
             <div class="col-12 col-sm-6 col-lg-4 fade-up">
                 <a href="/listing/<?= htmlspecialchars($l['slug']) ?>" class="text-decoration-none">
                     <div class="listing-card h-100">
+                        <?php if (!empty($l['is_featured_active'])): ?>
+                            <div class="featured-ribbon">Featured</div>
+                        <?php endif; ?>
                         <?php if ($l['primary_image']): ?>
                             <img src="/uploads/listings/<?= $l['id'] ?>/<?= htmlspecialchars($l['primary_image']) ?>"
                                  class="listing-thumb" alt="<?= htmlspecialchars($l['title']) ?>">

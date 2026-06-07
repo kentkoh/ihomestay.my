@@ -1,5 +1,5 @@
 <?php
-$isVerified = ($listing['owner_verification_status'] === 'verified');
+$isVerified = (bool) ($listing['owner_is_verified'] ?? false);
 $waNumber   = preg_replace('/\D/', '', $listing['whatsapp'] ?? '');
 $waText     = urlencode('Hi, I saw your Listing "' . $listing['title'] . '" at ihomestay.my. Can I know more about this unit?');
 $waUrl      = 'https://wa.me/' . $waNumber . '?text=' . $waText;
@@ -41,6 +41,15 @@ $hasMap     = !empty($listing['latitude']) && !empty($listing['longitude']);
 .sticky-cta .btn-wa:hover { background:#1da851; color:#fff; }
 .has-sticky-bar { padding-bottom:72px; }
 
+/* Featured ribbon */
+.featured-ribbon { position:absolute; top:18px; right:-30px; background:#e84c2b; color:#fff; font-size:.65rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; padding:5px 44px; transform:rotate(45deg); z-index:3; box-shadow:0 2px 8px rgba(0,0,0,.25); }
+
+/* Similar listings */
+.similar-card { border:none; border-radius:10px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,.07); transition:transform .2s,box-shadow .2s; }
+.similar-card:hover { transform:translateY(-3px); box-shadow:0 6px 20px rgba(0,0,0,.12); }
+.similar-thumb { height:140px; object-fit:cover; width:100%; background:#f1f5f9; }
+.similar-thumb-ph { height:140px; background:#f1f5f9; display:flex; align-items:center; justify-content:center; color:#94a3b8; }
+
 /* Verified badge */
 .verified-badge { display:inline-flex; align-items:center; gap:5px; background:#d1fae5; color:#065f46; border-radius:50px; padding:3px 10px; font-size:.78rem; font-weight:600; }
 .unverified-badge { display:inline-flex; align-items:center; gap:5px; background:#fef3c7; color:#92400e; border-radius:50px; padding:3px 10px; font-size:.78rem; font-weight:600; }
@@ -76,6 +85,9 @@ $hasMap     = !empty($listing['latitude']) && !empty($listing['longitude']);
 
             <!-- Gallery -->
             <div class="card border-0 shadow-sm overflow-hidden mb-4">
+                <?php if (!empty($listing['is_featured_active'])): ?>
+                    <div class="featured-ribbon">Featured</div>
+                <?php endif; ?>
                 <?php if (!empty($images)): ?>
                     <img id="mainImg"
                          src="/uploads/listings/<?= (int)$listing['id'] ?>/<?= htmlspecialchars($images[0]['filename']) ?>"
@@ -262,6 +274,51 @@ $hasMap     = !empty($listing['latitude']) && !empty($listing['longitude']);
     </div>
 </div>
 </div>
+
+<?php if (!empty($similar)): ?>
+<!-- Similar listings -->
+<div style="background:#f8fafc; border-top:1px solid #e2e8f0; padding:3rem 0 4rem;">
+    <div class="container">
+        <div class="mb-4">
+            <div class="small fw-bold text-uppercase" style="color:#e84c2b;letter-spacing:.1em;">More in <?= htmlspecialchars($listing['city_name']) ?></div>
+            <h2 class="h5 fw-bold mb-0">Similar Homestays</h2>
+        </div>
+        <div class="row g-3">
+            <?php foreach ($similar as $s): ?>
+            <div class="col-6 col-md-4 col-lg-2">
+                <a href="/listing/<?= htmlspecialchars($s['slug']) ?>" class="text-decoration-none">
+                    <div class="similar-card position-relative">
+                        <?php if (!empty($s['is_featured_active'])): ?>
+                            <div class="featured-ribbon" style="top:12px;right:-24px;font-size:.55rem;padding:3px 32px;">Featured</div>
+                        <?php endif; ?>
+                        <?php if ($s['primary_image']): ?>
+                            <img src="/uploads/listings/<?= (int)$s['id'] ?>/<?= htmlspecialchars($s['primary_image']) ?>"
+                                 class="similar-thumb" alt="" loading="lazy"
+                                 onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'similar-thumb-ph',innerHTML:'<i class=\'bi bi-image\'></i>'}))">
+                        <?php else: ?>
+                            <div class="similar-thumb-ph"><i class="bi bi-image"></i></div>
+                        <?php endif; ?>
+                        <div class="p-2">
+                            <?php if (!empty($s['owner_is_verified'])): ?>
+                                <div class="small mb-1" style="color:#059669;font-size:.68rem;font-weight:600;">
+                                    <i class="bi bi-patch-check-fill"></i> Verified
+                                </div>
+                            <?php endif; ?>
+                            <div class="small fw-semibold text-dark" style="line-height:1.3;font-size:.82rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">
+                                <?= htmlspecialchars($s['title']) ?>
+                            </div>
+                            <div class="fw-bold mt-1" style="color:#e84c2b;font-size:.85rem;">
+                                RM <?= number_format((float)$s['price_per_night'], 0) ?><span class="fw-normal text-muted" style="font-size:.72rem;">/night</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
 
 <?php if ($isVerified && $waNumber): ?>
 <!-- Sticky bottom bar — verified listings only -->

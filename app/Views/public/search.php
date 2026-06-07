@@ -12,6 +12,7 @@ function searchPageUrl(int $page, array $filters): string {
 .listing-thumb { height:210px; object-fit:cover; width:100%; }
 .listing-thumb-ph { height:210px; background:#f1f5f9; display:flex; align-items:center; justify-content:center; color:#94a3b8; }
 .badge-featured { position:absolute; top:10px; left:10px; background:#e84c2b; color:#fff; font-size:.7rem; padding:3px 9px; border-radius:4px; font-weight:700; letter-spacing:.03em; }
+.featured-ribbon { position:absolute; top:18px; right:-30px; background:#e84c2b; color:#fff; font-size:.62rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; padding:5px 44px; transform:rotate(45deg); z-index:3; box-shadow:0 2px 8px rgba(0,0,0,.25); pointer-events:none; }
 .price-tag { color:#e84c2b; font-weight:700; font-size:1.05rem; }
 .wa-btn { background:#25D366; color:#fff; border:none; position:relative; z-index:2; }
 .wa-btn:hover { background:#1da851; color:#fff; }
@@ -92,6 +93,9 @@ function searchPageUrl(int $page, array $filters): string {
             <div class="col-12 col-sm-6 col-xl-4">
                 <div class="card listing-card h-100 shadow-sm overflow-hidden">
                     <div class="position-relative">
+                        <?php if (!empty($listing['is_featured_active'])): ?>
+                            <div class="featured-ribbon">Featured</div>
+                        <?php endif; ?>
                         <?php if ($listing['primary_image']): ?>
                             <img src="/uploads/listings/<?= (int)$listing['id'] ?>/<?= htmlspecialchars($listing['primary_image']) ?>"
                                  class="listing-thumb"
