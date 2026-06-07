@@ -82,7 +82,25 @@ $isPro = $user['plan_type'] !== 'free';
                                         <strong>Rejected:</strong> <?= htmlspecialchars($l['rejection_reason']) ?>
                                     </div>
                                 <?php endif; ?>
-                                <div class="d-flex gap-2 mt-2">
+                                <div class="d-flex gap-2 mt-2 flex-wrap">
+                                    <?php if ($l['status'] === 'published'): ?>
+                                        <?php
+                                            $isFeatured = $l['is_featured'] && (!$l['featured_until'] || strtotime($l['featured_until']) > time());
+                                        ?>
+                                        <?php if ($isFeatured): ?>
+                                            <span class="btn btn-sm" style="background:#fef2f0;color:#e84c2b;border:1px solid #fca5a5;pointer-events:none;">
+                                                <i class="bi bi-star-fill me-1"></i>Featured
+                                                <?php if ($l['featured_until']): ?>
+                                                    until <?= date('d M', strtotime($l['featured_until'])) ?>
+                                                <?php endif; ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <a href="/feature/<?= $l['id'] ?>" class="btn btn-sm"
+                                               style="background:#e84c2b;color:#fff;">
+                                                <i class="bi bi-lightning-charge-fill me-1"></i>Feature This
+                                            </a>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
                                     <a href="/owner/listings/<?= $l['id'] ?>/edit" class="btn btn-sm btn-outline-secondary">
                                         <i class="bi bi-pencil me-1"></i> Edit
                                     </a>

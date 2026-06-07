@@ -20,6 +20,8 @@ require_once APP_PATH . '/Models/City.php';
 require_once APP_PATH . '/Models/Facility.php';
 require_once APP_PATH . '/Models/Listing.php';
 require_once APP_PATH . '/Models/Article.php';
+require_once APP_PATH . '/Models/FeaturedPackage.php';
+require_once APP_PATH . '/Models/Payment.php';
 
 // Controllers
 require_once APP_PATH . '/Controllers/AuthController.php';
@@ -31,6 +33,8 @@ require_once APP_PATH . '/Controllers/OwnerListingController.php';
 require_once APP_PATH . '/Controllers/AdminArticleController.php';
 require_once APP_PATH . '/Controllers/AdminOwnerController.php';
 require_once APP_PATH . '/Controllers/PublicController.php';
+require_once APP_PATH . '/Controllers/PaymentController.php';
+require_once APP_PATH . '/Controllers/AdminFeaturedPackageController.php';
 
 $router = new Router();
 
@@ -106,6 +110,17 @@ $router->post('/owner/listings/{id}/delete',                          ['OwnerLis
 $router->post('/owner/listings/{id}/images/upload',                   ['OwnerListingController', 'uploadImages']);
 $router->post('/owner/listings/{listingId}/images/{imageId}/delete',  ['OwnerListingController', 'deleteImage']);
 $router->post('/owner/listings/{listingId}/images/{imageId}/primary', ['OwnerListingController', 'setPrimary']);
+
+// Featured listing purchase
+$router->get('/feature/{listingId}',          ['PaymentController', 'showFeaturePage']);
+$router->post('/feature/{listingId}/checkout',['PaymentController', 'checkout']);
+$router->post('/payment/callback',            ['PaymentController', 'callback']);
+$router->get('/payment/return',               ['PaymentController', 'returnPage']);
+
+// Admin — featured packages
+$router->get('/admin/featured-packages',                    ['AdminFeaturedPackageController', 'index']);
+$router->get('/admin/featured-packages/{id}/edit',          ['AdminFeaturedPackageController', 'edit']);
+$router->post('/admin/featured-packages/{id}/update',       ['AdminFeaturedPackageController', 'update']);
 
 // Public static pages
 $router->get('/about',   ['PublicController', 'about']);
