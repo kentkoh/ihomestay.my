@@ -47,18 +47,14 @@
     font-size: clamp(1rem, 1.8vw, 1.2rem);
     animation: fadeUp .6s ease .4s both;
 }
-.hero-search {
-    animation: fadeUp .6s ease .55s both;
-}
+.hero-search { animation: fadeUp .6s ease .55s both; }
 .hero-search .form-control, .hero-search .form-select {
     border: none;
     border-radius: 8px;
     padding: .75rem 1rem;
     font-size: .95rem;
 }
-.hero-stats {
-    animation: fadeUp .6s ease .7s both;
-}
+.hero-stats { animation: fadeUp .6s ease .7s both; }
 .hero-stat-num { font-size: 1.6rem; font-weight: 800; color: #fff; line-height: 1; }
 .hero-stat-lbl { font-size: .75rem; color: #64748b; }
 
@@ -90,10 +86,7 @@
     background: #fff;
 }
 .listing-card:hover { transform: translateY(-4px); box-shadow: 0 8px 28px rgba(0,0,0,.12); }
-.listing-thumb {
-    height: 200px; object-fit: cover; width: 100%;
-    background: #e2e8f0;
-}
+.listing-thumb { height: 200px; object-fit: cover; width: 100%; background: #e2e8f0; }
 .listing-thumb-placeholder {
     height: 200px; background: linear-gradient(135deg,#e2e8f0,#f1f5f9);
     display: flex; align-items: center; justify-content: center;
@@ -131,11 +124,6 @@
     display: flex; align-items: center; justify-content: center;
     color: #94a3b8; font-size: 2rem;
 }
-
-/* ── Footer ── */
-.site-footer { background: #0f1923; color: #64748b; }
-.site-footer a { color: #94a3b8; text-decoration: none; }
-.site-footer a:hover { color: #fff; }
 </style>
 
 <!-- ══════════════════════════════════════════
@@ -145,16 +133,16 @@
     <div class="container py-5">
         <div class="row align-items-center">
             <div class="col-lg-7">
-                <div class="hero-badge mb-3">&#127968; Direct Owner · No Platform Fees</div>
+                <div class="hero-badge mb-3">&#127968; Direct Owner &middot; No Platform Fees</div>
 
                 <h1 class="hero-title mb-3">
-                    Tempah Terus<br>
-                    <span>dari Tuan Rumah.</span>
+                    Book Direct<br>
+                    <span>from the Owner.</span>
                 </h1>
 
                 <p class="hero-sub mb-5">
-                    Pelancong tidak perlu bayar caj platform lagi.<br>
-                    Hubungi tuan rumah terus — lebih jimat, lebih mesra.
+                    No platform fees. No middleman.<br>
+                    Contact owners directly &mdash; save more, stay better.
                 </p>
 
                 <!-- Search -->
@@ -162,16 +150,17 @@
                     <form action="/search" method="GET">
                         <div class="bg-white p-2 rounded-3 d-flex flex-column flex-md-row gap-2 shadow-lg">
                             <select name="state_id" id="hero-state" class="form-select flex-fill" style="min-width:0;">
-                                <option value="">Pilih Negeri</option>
+                                <option value="">Select State</option>
                                 <?php foreach ($statesWithCnt as $s): ?>
                                     <option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['name']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                             <select name="city_id" id="hero-city" class="form-select flex-fill" style="min-width:0;">
-                                <option value="">Semua Bandar</option>
+                                <option value="">All Cities</option>
                             </select>
-                            <button type="submit" class="btn btn-primary px-4 fw-semibold" style="background:#e84c2b;border-color:#e84c2b;white-space:nowrap;">
-                                <i class="bi bi-search me-1"></i> Cari Homestay
+                            <button type="submit" class="btn px-4 fw-semibold text-white"
+                                    style="background:#e84c2b;border-color:#e84c2b;white-space:nowrap;">
+                                <i class="bi bi-search me-1"></i> Search
                             </button>
                         </div>
                     </form>
@@ -181,17 +170,17 @@
                 <div class="hero-stats d-flex gap-4 mt-4">
                     <div>
                         <div class="hero-stat-num"><?= array_sum(array_column($statesWithCnt, 'total')) ?>+</div>
-                        <div class="hero-stat-lbl">Listing Aktif</div>
+                        <div class="hero-stat-lbl">Active Listings</div>
                     </div>
                     <div style="border-left:1px solid #1e3a2f;margin:0 4px;"></div>
                     <div>
                         <div class="hero-stat-num">16</div>
-                        <div class="hero-stat-lbl">Negeri</div>
+                        <div class="hero-stat-lbl">States</div>
                     </div>
                     <div style="border-left:1px solid #1e3a2f;margin:0 4px;"></div>
                     <div>
-                        <div class="hero-stat-num">0</div>
-                        <div class="hero-stat-lbl">Caj Platform</div>
+                        <div class="hero-stat-num">0%</div>
+                        <div class="hero-stat-lbl">Platform Fee</div>
                     </div>
                 </div>
             </div>
@@ -209,8 +198,8 @@
                 <div class="d-flex align-items-center gap-3 p-3">
                     <div class="value-icon"><i class="bi bi-tag-fill"></i></div>
                     <div>
-                        <div class="fw-bold">Tiada Caj Platform</div>
-                        <div class="text-muted small">Bayar harga sebenar. Tiada caj tersembunyi.</div>
+                        <div class="fw-bold">Zero Platform Fees</div>
+                        <div class="text-muted small">Pay the real price. No hidden charges.</div>
                     </div>
                 </div>
             </div>
@@ -218,8 +207,8 @@
                 <div class="d-flex align-items-center gap-3 p-3">
                     <div class="value-icon"><i class="bi bi-whatsapp"></i></div>
                     <div>
-                        <div class="fw-bold">Hubungi Tuan Rumah Terus</div>
-                        <div class="text-muted small">Tanya soalan, nego harga — terus via WhatsApp.</div>
+                        <div class="fw-bold">Contact Owner Directly</div>
+                        <div class="text-muted small">Ask questions, negotiate — straight via WhatsApp.</div>
                     </div>
                 </div>
             </div>
@@ -227,8 +216,8 @@
                 <div class="d-flex align-items-center gap-3 p-3">
                     <div class="value-icon"><i class="bi bi-shield-check-fill"></i></div>
                     <div>
-                        <div class="fw-bold">Pemilik Disahkan</div>
-                        <div class="text-muted small">Listing disemak dan diluluskan admin.</div>
+                        <div class="fw-bold">Verified Listings</div>
+                        <div class="text-muted small">Every listing is reviewed and approved by our team.</div>
                     </div>
                 </div>
             </div>
@@ -244,11 +233,11 @@
     <div class="container">
         <div class="d-flex justify-content-between align-items-end mb-4 fade-up">
             <div>
-                <div class="section-label mb-1">Homestay Terpilih</div>
-                <h2 class="fw-bold mb-0" style="font-size:1.6rem;">Cari Penginapan Anda</h2>
+                <div class="section-label mb-1">Featured Homestays</div>
+                <h2 class="fw-bold mb-0" style="font-size:1.6rem;">Find Your Perfect Stay</h2>
             </div>
             <a href="/search" class="text-decoration-none small fw-semibold" style="color:#e84c2b;">
-                Lihat Semua <i class="bi bi-arrow-right"></i>
+                View All <i class="bi bi-arrow-right"></i>
             </a>
         </div>
         <div class="row g-3">
@@ -273,7 +262,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <span class="listing-price">RM <?= number_format($l['price_per_night'], 0) ?></span>
-                                    <span class="text-muted small"> / malam</span>
+                                    <span class="text-muted small"> / night</span>
                                 </div>
                                 <a href="https://wa.me/<?= htmlspecialchars(preg_replace('/\D/', '', $l['whatsapp'])) ?>"
                                    target="_blank" rel="noopener"
@@ -298,8 +287,8 @@
 <section class="py-5" style="background:#f8fafc;">
     <div class="container">
         <div class="text-center mb-4 fade-up">
-            <div class="section-label mb-1">Terokai Mengikut Negeri</div>
-            <h2 class="fw-bold mb-0" style="font-size:1.6rem;">Di Mana Anda Ingin Menginap?</h2>
+            <div class="section-label mb-1">Explore by State</div>
+            <h2 class="fw-bold mb-0" style="font-size:1.6rem;">Where Would You Like to Stay?</h2>
         </div>
         <div class="row g-2">
             <?php foreach ($statesWithCnt as $s): ?>
@@ -315,22 +304,24 @@
 </section>
 
 <!-- ══════════════════════════════════════════
-     DIRECT OWNER BANNER
+     OWNER CTA BANNER
 ═══════════════════════════════════════════ -->
 <section style="background:linear-gradient(135deg,#e84c2b,#c73d22);padding:60px 0;">
     <div class="container text-center fade-up">
-        <div class="text-white fw-semibold mb-2" style="font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;opacity:.8;">
-            Untuk Tuan Rumah
+        <div class="text-white fw-semibold mb-2"
+             style="font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;opacity:.8;">
+            For Homestay Owners
         </div>
         <h2 class="text-white fw-bold mb-3" style="font-size:clamp(1.5rem,3vw,2.4rem);">
-            Senaraikan Homestay Anda Percuma
+            List Your Homestay for Free
         </h2>
         <p class="text-white mb-4" style="opacity:.85;max-width:520px;margin:0 auto 1.5rem;">
-            Pelancong hubungi anda terus. Tiada komisen. Tiada caj listing.
-            Daftar sekarang dan mula terima tempahan hari ini.
+            Guests contact you directly. No commission. No listing fees.
+            Register now and start receiving bookings today.
         </p>
-        <a href="/register" class="btn btn-light fw-semibold px-5 py-2" style="border-radius:50px;color:#e84c2b;">
-            Daftar Percuma <i class="bi bi-arrow-right ms-1"></i>
+        <a href="/register" class="btn btn-light fw-semibold px-5 py-2"
+           style="border-radius:50px;color:#e84c2b;">
+            Register Free <i class="bi bi-arrow-right ms-1"></i>
         </a>
     </div>
 </section>
@@ -343,11 +334,11 @@
     <div class="container">
         <div class="d-flex justify-content-between align-items-end mb-4 fade-up">
             <div>
-                <div class="section-label mb-1">Tips &amp; Panduan</div>
-                <h2 class="fw-bold mb-0" style="font-size:1.6rem;">Artikel Terkini</h2>
+                <div class="section-label mb-1">Tips &amp; Guides</div>
+                <h2 class="fw-bold mb-0" style="font-size:1.6rem;">Latest Articles</h2>
             </div>
             <a href="/articles" class="text-decoration-none small fw-semibold" style="color:#e84c2b;">
-                Semua Artikel <i class="bi bi-arrow-right"></i>
+                All Articles <i class="bi bi-arrow-right"></i>
             </a>
         </div>
         <div class="row g-3">
@@ -384,15 +375,14 @@
 </section>
 <?php endif; ?>
 
-<!-- Scroll animation observer -->
 <script>
 // City filter for hero search
-const heroCities  = <?= json_encode($citiesByState) ?>;
-const heroState   = document.getElementById('hero-state');
-const heroCity    = document.getElementById('hero-city');
+const heroCities = <?= json_encode($citiesByState) ?>;
+const heroState  = document.getElementById('hero-state');
+const heroCity   = document.getElementById('hero-city');
 
 heroState.addEventListener('change', function () {
-    heroCity.innerHTML = '<option value="">Semua Bandar</option>';
+    heroCity.innerHTML = '<option value="">All Cities</option>';
     (heroCities[this.value] || []).forEach(c => {
         const o = document.createElement('option');
         o.value = c.id; o.textContent = c.name;
@@ -402,7 +392,9 @@ heroState.addEventListener('change', function () {
 
 // Scroll-triggered fade-up
 const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+    entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+    });
 }, { threshold: 0.12 });
 document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 </script>
