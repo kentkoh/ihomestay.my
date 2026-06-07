@@ -2,53 +2,89 @@
 
 class Mailer {
     public static function send(string $toEmail, string $toName, string $subject, string $html): bool {
-        $key = env('BREVO_API_KEY', '');
-        if (!$key) return false;
+        $host     = env('SMTP_HOST', 'smtp-relay.brevo.com');
+        $port     = (int) env('SMTP_PORT', '587');
+        $user     = env('SMTP_USER', '');
+        $pass     = env('SMTP_PASS', '');
+        $fromAddr = env('MAIL_FROM_ADDRESS', 'no-reply@ihomestay.my');
+        $fromName = env('MAIL_FROM_NAME', 'ihomestay.my');
 
-        $payload = json_encode([
-            'sender'      => [
-                'name'  => env('MAIL_FROM_NAME', 'ihomestay.my'),
-                'email' => env('MAIL_FROM_ADDRESS', 'no-reply@ihomestay.my'),
-            ],
-            'to'          => [['email' => $toEmail, 'name' => $toName]],
-            'subject'     => $subject,
-            'htmlContent' => $html,
-        ]);
+        if (!$user || !$pass) return false;
 
-        if (!function_exists('curl_init')) {
-            error_log('Mailer: cURL is not available on this server.');
+        $sock = @fsockopen($host, $port, $errno, $errstr, 10);
+        if (!$sock) {
+            error_log("Mailer: fsockopen failed — $errno $errstr");
             return false;
         }
 
-        $ch = curl_init('https://api.brevo.com/v3/smtp/email');
-        if ($ch === false) {
-            error_log('Mailer: curl_init failed.');
+        stream_set_timeout($sock, 10);
+
+        $read = fn() => fgets($sock, 512);
+        $send = fn(string $cmd) => fputs($sock, $cmd . "\r\n");
+
+        $read(); // greeting
+
+        $send("EHLO ihomestay.my");
+        while ($line = $read()) { if ($line[3] === ' ') break; }
+
+        $send("STARTTLS");
+        $read();
+
+        if (!stream_socket_enable_crypto($sock, true, STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT)) {
+            fclose($sock);
+            error_log("Mailer: TLS handshake failed.");
             return false;
         }
 
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST           => true,
-            CURLOPT_POSTFIELDS     => $payload,
-            CURLOPT_HTTPHEADER     => [
-                'api-key: ' . $key,
-                'Content-Type: application/json',
-                'Accept: application/json',
-            ],
-            CURLOPT_TIMEOUT        => 10,
-        ]);
-        curl_exec($ch);
-        $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+        $send("EHLO ihomestay.my");
+        while ($line = $read()) { if ($line[3] === ' ') break; }
 
-        return $status >= 200 && $status < 300;
+        $send("AUTH LOGIN");
+        $read();
+        $send(base64_encode($user));
+        $read();
+        $send(base64_encode($pass));
+        $auth = $read();
+        if (substr($auth, 0, 3) !== '235') {
+            fclose($sock);
+            error_log("Mailer: AUTH failed — $auth");
+            return false;
+        }
+
+        $send("MAIL FROM: <{$fromAddr}>");
+        $read();
+        $send("RCPT TO: <{$toEmail}>");
+        $read();
+        $send("DATA");
+        $read();
+
+        $encodedSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
+        $body  = "Message-ID: <" . uniqid() . "@ihomestay.my>\r\n";
+        $body .= "Date: " . date('r') . "\r\n";
+        $body .= "From: =?UTF-8?B?" . base64_encode($fromName) . "?= <{$fromAddr}>\r\n";
+        $body .= "To: =?UTF-8?B?" . base64_encode($toName) . "?= <{$toEmail}>\r\n";
+        $body .= "Subject: {$encodedSubject}\r\n";
+        $body .= "MIME-Version: 1.0\r\n";
+        $body .= "Content-Type: text/html; charset=UTF-8\r\n";
+        $body .= "Content-Transfer-Encoding: base64\r\n";
+        $body .= "\r\n";
+        $body .= chunk_split(base64_encode($html));
+        $body .= "\r\n.\r\n";
+
+        fputs($sock, $body);
+        $sent = $read();
+
+        $send("QUIT");
+        fclose($sock);
+
+        return substr($sent, 0, 3) === '250';
     }
 
     // ── Email templates ────────────────────────────────────────────
 
     public static function welcome(string $toEmail, string $toName): void {
         $html = self::wrap("Welcome to ihomestay.my, {$toName}!", "
-            <p>Hi <strong>{$toName}</strong>,</p>
+            <p>Hi <strong>" . htmlspecialchars($toName) . "</strong>,</p>
             <p>Thank you for registering as a homestay owner on <strong>ihomestay.my</strong>.</p>
             <p>You can now start adding your listings. Each listing goes through a quick review before going live.</p>
             <p style='margin-top:24px;'>
@@ -58,7 +94,7 @@ class Mailer {
                 </a>
             </p>
             <p style='margin-top:24px;color:#64748b;font-size:14px;'>
-                If you have any questions, reply to this email or contact us at admin@ihomestay.my.
+                If you have any questions, contact us at admin@ihomestay.my.
             </p>
         ");
         self::send($toEmail, $toName, 'Welcome to ihomestay.my!', $html);
@@ -67,7 +103,7 @@ class Mailer {
     public static function listingSubmitted(string $toEmail, string $toName, string $listingTitle): void {
         $safeTitle = htmlspecialchars($listingTitle);
         $html = self::wrap("Listing Submitted for Review", "
-            <p>Hi <strong>{$toName}</strong>,</p>
+            <p>Hi <strong>" . htmlspecialchars($toName) . "</strong>,</p>
             <p>Your listing <strong>&ldquo;{$safeTitle}&rdquo;</strong> has been submitted and is now awaiting approval.</p>
             <p>Our team will review it shortly. You will receive an email once it has been approved or if any changes are needed.</p>
             <p style='color:#64748b;font-size:14px;margin-top:24px;'>
@@ -80,10 +116,10 @@ class Mailer {
     public static function listingApproved(string $toEmail, string $toName, string $listingTitle, string $listingUrl): void {
         $safeTitle = htmlspecialchars($listingTitle);
         $html = self::wrap("Your Listing is Live!", "
-            <p>Hi <strong>{$toName}</strong>,</p>
+            <p>Hi <strong>" . htmlspecialchars($toName) . "</strong>,</p>
             <p>Great news! Your listing <strong>&ldquo;{$safeTitle}&rdquo;</strong> has been approved and is now live on ihomestay.my.</p>
             <p style='margin-top:24px;'>
-                <a href='{$listingUrl}'
+                <a href='" . htmlspecialchars($listingUrl) . "'
                    style='background:#e84c2b;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:600;'>
                    View Your Listing
                 </a>
@@ -99,7 +135,7 @@ class Mailer {
         $safeTitle  = htmlspecialchars($listingTitle);
         $safeReason = htmlspecialchars($reason);
         $html = self::wrap("Action Required: Listing Not Approved", "
-            <p>Hi <strong>{$toName}</strong>,</p>
+            <p>Hi <strong>" . htmlspecialchars($toName) . "</strong>,</p>
             <p>Unfortunately your listing <strong>&ldquo;{$safeTitle}&rdquo;</strong> was not approved at this time.</p>
             <div style='background:#fef2f2;border-left:4px solid #e84c2b;padding:16px;border-radius:4px;margin:20px 0;'>
                 <strong>Reason:</strong><br>{$safeReason}
