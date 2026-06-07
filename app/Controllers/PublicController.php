@@ -20,6 +20,23 @@ class PublicController {
         require APP_PATH . '/Views/layouts/main.php';
     }
 
+    public function listingDetail(string $slug): void {
+        $listing = Listing::findBySlugPublic($slug);
+        if (!$listing) {
+            http_response_code(404);
+            echo '<h1>404 — Listing not found</h1>';
+            return;
+        }
+        $images     = Listing::getImages((int) $listing['id']);
+        $facilities = Listing::getFacilitiesForListing((int) $listing['id']);
+        $pageTitle  = $listing['title'] . ' — ihomestay.my';
+
+        ob_start();
+        require APP_PATH . '/Views/public/listing.php';
+        $content = ob_get_clean();
+        require APP_PATH . '/Views/layouts/main.php';
+    }
+
     public function search(): void {
         $this->renderSearch();
     }

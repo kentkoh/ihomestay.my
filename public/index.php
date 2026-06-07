@@ -35,8 +35,9 @@ $router = new Router();
 // Homepage
 $router->get('/', ['PublicController', 'home']);
 
-// Public search (must be before parameterised state/city routes)
-$router->get('/search', ['PublicController', 'search']);
+// Public search & listing detail (must be before parameterised state/city routes)
+$router->get('/search',         ['PublicController', 'search']);
+$router->get('/listing/{slug}', ['PublicController', 'listingDetail']);
 
 // Auth
 $router->get('/login',     ['AuthController', 'showLogin']);

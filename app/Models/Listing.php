@@ -267,6 +267,41 @@ class Listing {
         $pdo->prepare("UPDATE listing_images SET is_primary=1 WHERE id=? AND listing_id=?")->execute([$imageId, $listingId]);
     }
 
+    public static function findBySlugPublic(string $slug): ?array {
+        $stmt = Database::get()->prepare(
+            "SELECT l.*, s.name as state_name, s.slug as state_slug,
+                    c.name as city_name, c.slug as city_slug,
+                    u.name as owner_name, u.verification_status as owner_verification_status,
+                    op.company_name as owner_company, op.about as owner_bio, op.profile_photo as owner_photo,
+                    op.verified_at
+             FROM listings l
+             JOIN states s  ON l.state_id  = s.id
+             JOIN cities c  ON l.city_id   = c.id
+             JOIN users u   ON l.owner_id  = u.id
+             LEFT JOIN owner_profiles op ON op.user_id = l.owner_id
+             WHERE l.slug = ? AND l.status = 'published'"
+        );
+        $stmt->execute([$slug]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    public static function getFacilitiesForListing(int $listingId): array {
+        $stmt = Database::get()->prepare(
+            "SELECT f.name, f.category
+             FROM facilities f
+             JOIN listing_facilities lf ON lf.facility_id = f.id
+             WHERE lf.listing_id = ? AND f.is_active = 1
+             ORDER BY f.category, f.sort_order, f.name"
+        );
+        $stmt->execute([$listingId]);
+        $rows    = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $grouped = [];
+        foreach ($rows as $row) {
+            $grouped[$row['category']][] = $row['name'];
+        }
+        return $grouped;
+    }
+
     public static function search(array $filters = [], int $page = 1, int $perPage = 12): array {
         $pdo = Database::get();
         [$where, $params] = self::buildSearchWhere($filters);
