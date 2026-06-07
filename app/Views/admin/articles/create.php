@@ -50,6 +50,7 @@
     </div>
 </form>
 
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs5.min.js"></script>
 <script>
 const CSRF_TOKEN = <?= json_encode(CSRF::token()) ?>;
