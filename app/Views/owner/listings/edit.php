@@ -376,10 +376,16 @@ function uploadPhotos(files) {
             label.textContent = '✓ Uploaded!';
             pct.textContent   = '';
             data.images.forEach(addImageToGrid);
-            setTimeout(() => { wrap.style.display = 'none'; }, 2500);
+            if (data.skipped && data.skipped.length) {
+                label.textContent = '✓ Done. Skipped: ' + data.skipped.join(', ');
+            }
+            setTimeout(() => { wrap.style.display = 'none'; }, 3000);
+        } else if (data.success && data.images.length === 0) {
+            bar.className   = 'progress-bar bg-danger';
+            label.textContent = 'No files saved. ' + (data.skipped?.join(', ') || 'Check file format (JPG/PNG/WebP) and size (max 5MB).');
         } else {
             bar.className   = 'progress-bar bg-danger';
-            label.textContent = data.error || 'Upload failed. Try again.';
+            label.textContent = 'Error: ' + (data.error || 'Unknown error. Try again.');
         }
     });
 
@@ -449,7 +455,7 @@ function deleteImage(imageId, item) {
                 });
             }
         })
-        .catch(() => alert('Delete failed. Try again.'));
+        .catch(err => alert('Delete failed: ' + err));
 }
 
 function setPrimaryImage(imageId) {
