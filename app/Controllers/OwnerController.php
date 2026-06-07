@@ -22,7 +22,7 @@ class OwnerController {
 
         $userId = Auth::id();
         $name   = trim($_POST['name'] ?? '');
-        $wa     = trim($_POST['whatsapp'] ?? '');
+        $wa     = User::normalizePhone(trim($_POST['whatsapp'] ?? ''));
         $errors = [];
 
         if ($name === '') $errors[] = 'Name is required.';

@@ -64,7 +64,7 @@ class AuthController {
 
         $name     = trim($_POST['name'] ?? '');
         $email    = trim($_POST['email'] ?? '');
-        $phone    = trim($_POST['phone'] ?? '');
+        $phone    = User::normalizePhone(trim($_POST['phone'] ?? ''));
         $password = $_POST['password'] ?? '';
         $confirm  = $_POST['password_confirm'] ?? '';
 

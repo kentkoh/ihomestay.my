@@ -130,4 +130,13 @@ class User {
             "UPDATE users SET verification_status = ?, updated_at = NOW() WHERE id = ?"
         )->execute([$status, $id]);
     }
+
+    // Normalise to Malaysian international format: 01x... → 601x..., +601x... → 601x...
+    public static function normalizePhone(string $phone): string {
+        $digits = preg_replace('/\D/', '', $phone); // strip spaces, dashes, +
+        if ($digits === '') return '';
+        if (str_starts_with($digits, '60')) return $digits;   // already 601x...
+        if (str_starts_with($digits, '0'))  return '6' . $digits; // 01x → 601x
+        return $digits; // unknown format — keep as-is
+    }
 }
