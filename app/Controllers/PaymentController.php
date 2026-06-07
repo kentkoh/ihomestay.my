@@ -38,9 +38,21 @@ class PaymentController {
             exit;
         }
 
-        $packages    = $this->packageModel->active();
+        $packages     = $this->packageModel->active();
         $packageModel = $this->packageModel;
-        $pageTitle   = 'Feature Your Listing';
+        $pageTitle    = 'Feature Your Listing';
+
+        // Fetch a sample listing (ID 5, or any published listing with an image) for the visual comparison
+        $db = Database::get();
+        $sampleRow = $db->query("
+            SELECT l.id, l.title, li.filename AS primary_image
+            FROM listings l
+            LEFT JOIN listing_images li ON li.listing_id = l.id AND li.is_primary = 1
+            WHERE l.status = 'published' AND li.filename IS NOT NULL
+            ORDER BY CASE WHEN l.id = 5 THEN 0 ELSE 1 END, RAND()
+            LIMIT 1
+        ")->fetch();
+        $sampleListing = $sampleRow ?: null;
 
         ob_start();
         require APP_PATH . '/Views/public/feature-listing.php';

@@ -62,12 +62,21 @@
             <div class="col-lg-6 d-none d-lg-block">
                 <!-- Visual comparison -->
                 <div class="row g-3 align-items-center">
+                    <?php
+                        $sampleImgUrl = ($sampleListing && $sampleListing['primary_image'])
+                            ? '/uploads/listings/' . $sampleListing['id'] . '/' . htmlspecialchars($sampleListing['primary_image'])
+                            : null;
+                    ?>
                     <div class="col-6">
                         <div style="color:#64748b;font-size:.78rem;font-weight:600;text-align:center;letter-spacing:.06em;margin-bottom:.6rem;">NORMAL LISTING</div>
                         <div class="vs-card" style="border-radius:16px;overflow:hidden;background:#fff;">
-                            <div class="vc-img d-flex align-items-center justify-content-center" style="background:linear-gradient(135deg,#e2e8f0,#cbd5e1);">
-                                <i class="bi bi-house fs-1 text-muted opacity-50"></i>
-                            </div>
+                            <?php if ($sampleImgUrl): ?>
+                                <img src="<?= $sampleImgUrl ?>" class="vc-img" alt="" style="filter:grayscale(40%);">
+                            <?php else: ?>
+                                <div class="vc-img d-flex align-items-center justify-content-center" style="background:linear-gradient(135deg,#e2e8f0,#cbd5e1);">
+                                    <i class="bi bi-house fs-1 text-muted opacity-50"></i>
+                                </div>
+                            <?php endif; ?>
                             <div style="padding:.85rem;">
                                 <div style="background:#e2e8f0;height:10px;border-radius:4px;width:80%;margin-bottom:.5rem;"></div>
                                 <div style="background:#f1f5f9;height:8px;border-radius:4px;width:55%;margin-bottom:.75rem;"></div>
@@ -79,12 +88,16 @@
                     <div class="col-6">
                         <div style="color:#e84c2b;font-size:.78rem;font-weight:700;text-align:center;letter-spacing:.06em;margin-bottom:.6rem;">✦ FEATURED LISTING</div>
                         <div class="vs-card vs-featured position-relative" style="border-radius:16px;overflow:hidden;background:#fff;">
-                            <div style="overflow:hidden;">
+                            <div style="overflow:hidden;position:absolute;top:0;left:0;z-index:2;">
                                 <div class="feat-ribbon">FEATURED</div>
                             </div>
-                            <div class="vc-img d-flex align-items-center justify-content-center" style="background:linear-gradient(135deg,#fde8e4,#fca5a5);">
-                                <i class="bi bi-house-heart fs-1" style="color:#e84c2b;opacity:.6;"></i>
-                            </div>
+                            <?php if ($sampleImgUrl): ?>
+                                <img src="<?= $sampleImgUrl ?>" class="vc-img" alt="">
+                            <?php else: ?>
+                                <div class="vc-img d-flex align-items-center justify-content-center" style="background:linear-gradient(135deg,#fde8e4,#fca5a5);">
+                                    <i class="bi bi-house-heart fs-1" style="color:#e84c2b;opacity:.6;"></i>
+                                </div>
+                            <?php endif; ?>
                             <div style="padding:.85rem;">
                                 <div style="background:#fde8e4;height:10px;border-radius:4px;width:80%;margin-bottom:.5rem;"></div>
                                 <div style="background:#fef2f0;height:8px;border-radius:4px;width:55%;margin-bottom:.75rem;"></div>
