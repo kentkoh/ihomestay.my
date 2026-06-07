@@ -193,13 +193,18 @@ foreach ($cities as $city) {
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white fw-semibold">Photos</div>
             <div class="card-body p-4">
-                <input type="file" name="images[]" class="form-control" multiple accept="image/jpeg,image/png,image/webp">
-                <div class="form-text">Max 10 photos. Each photo max 5MB. Formats: JPG, PNG, WebP. First photo will be the main photo.</div>
+                <div class="d-flex align-items-start gap-3">
+                    <div class="text-muted" style="font-size:2rem;line-height:1;">&#128247;</div>
+                    <div>
+                        <div class="fw-semibold mb-1">Upload photos in the next step</div>
+                        <div class="text-muted small">After saving your listing details, you will be taken to the photo upload screen where you can upload and preview your photos before submitting for review.</div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="d-flex gap-2">
-            <button type="submit" class="btn px-4" style="background:#e84c2b;color:#fff;">Submit for Review</button>
+            <button type="submit" class="btn px-4" style="background:#e84c2b;color:#fff;">Save &amp; Continue to Photos &rarr;</button>
             <a href="/owner/listings" class="btn btn-outline-secondary">Cancel</a>
         </div>
     </form>

@@ -18,6 +18,7 @@ require_once APP_PATH . '/Models/State.php';
 require_once APP_PATH . '/Models/City.php';
 require_once APP_PATH . '/Models/Facility.php';
 require_once APP_PATH . '/Models/Listing.php';
+require_once APP_PATH . '/Models/Article.php';
 
 // Controllers
 require_once APP_PATH . '/Controllers/AuthController.php';
@@ -26,6 +27,7 @@ require_once APP_PATH . '/Controllers/AdminFacilityController.php';
 require_once APP_PATH . '/Controllers/AdminListingController.php';
 require_once APP_PATH . '/Controllers/OwnerController.php';
 require_once APP_PATH . '/Controllers/OwnerListingController.php';
+require_once APP_PATH . '/Controllers/AdminArticleController.php';
 
 $router = new Router();
 
@@ -58,6 +60,15 @@ $router->get('/admin/listings',                  ['AdminListingController', 'ind
 $router->post('/admin/listings/{id}/approve',    ['AdminListingController', 'approve']);
 $router->post('/admin/listings/{id}/reject',     ['AdminListingController', 'reject']);
 $router->post('/admin/listings/{id}/suspend',    ['AdminListingController', 'suspend']);
+
+// Admin — articles
+$router->get('/admin/articles',                  ['AdminArticleController', 'index']);
+$router->get('/admin/articles/create',           ['AdminArticleController', 'create']);
+$router->post('/admin/articles/store',           ['AdminArticleController', 'store']);
+$router->get('/admin/articles/{id}/edit',        ['AdminArticleController', 'edit']);
+$router->post('/admin/articles/{id}/update',     ['AdminArticleController', 'update']);
+$router->post('/admin/articles/{id}/delete',     ['AdminArticleController', 'delete']);
+$router->post('/admin/articles/{id}/toggle',     ['AdminArticleController', 'toggle']);
 
 // Owner — dashboard
 $router->get('/owner/dashboard', ['OwnerController', 'dashboard']);

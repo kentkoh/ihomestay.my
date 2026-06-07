@@ -177,12 +177,21 @@ foreach ($cities as $city) {
         <?php endif; ?>
 
         <!-- Photos (managed via AJAX — no nested forms) -->
-        <div class="card border-0 shadow-sm mb-4">
+        <div class="card border-0 shadow-sm mb-4" id="photos-section">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
                 <span class="fw-semibold">Photos</span>
                 <small class="text-muted"><span id="photo-count"><?= count($images) ?></span> / 10</small>
             </div>
             <div class="card-body p-4">
+            <?php if (!empty($_GET['new'])): ?>
+                <div class="alert alert-primary d-flex align-items-start gap-2 mb-3" style="border-left:4px solid #0d6efd;">
+                    <span style="font-size:1.3rem;line-height:1.2;">&#128247;</span>
+                    <div>
+                        <strong>Step 2 — Upload your photos</strong><br>
+                        <span class="small">Click <strong>Upload Photo</strong> below to add photos. You can see each photo after it uploads. Once done, click <strong>Save Changes</strong>.</span>
+                    </div>
+                </div>
+            <?php endif; ?>
                 <div class="row g-2 mb-3" id="photo-grid">
                     <?php foreach ($images as $img): ?>
                         <div class="col-6 col-md-3 photo-item" data-image-id="<?= $img['id'] ?>">
@@ -218,8 +227,8 @@ foreach ($cities as $city) {
 
                 <!-- File picker -->
                 <div id="upload-area">
-                    <label for="photo-input" class="btn btn-outline-secondary btn-sm" id="photo-pick-btn">
-                        <i class="bi bi-image me-1"></i> Choose Photos
+                    <label for="photo-input" class="btn <?= !empty($_GET['new']) ? 'btn-primary' : 'btn-outline-secondary btn-sm' ?>" id="photo-pick-btn">
+                        <i class="bi bi-cloud-upload me-1"></i> Upload Photo
                     </label>
                     <input type="file" id="photo-input" multiple accept="image/jpeg,image/png,image/webp" style="display:none;">
                     <div class="form-text mt-1">
@@ -496,4 +505,8 @@ function setPrimaryImage(imageId) {
         })
         .catch(() => alert('Failed. Try again.'));
 }
+
+<?php if (!empty($_GET['new'])): ?>
+document.getElementById('photos-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+<?php endif; ?>
 </script>

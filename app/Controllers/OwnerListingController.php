@@ -71,10 +71,9 @@ class OwnerListingController {
         ]);
 
         Listing::syncFacilities($listingId, $_POST['facilities'] ?? []);
-        $this->handleImageUploads($listingId, true);
 
-        $_SESSION['flash']['success'] = 'Listing submitted for review. We will notify you once approved.';
-        header('Location: /owner/listings');
+        $_SESSION['flash']['info'] = 'Listing created! Upload your photos now so they are ready for review.';
+        header("Location: /owner/listings/$listingId/edit?new=1");
         exit;
     }
 
