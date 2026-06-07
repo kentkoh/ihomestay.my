@@ -1,2 +1,2 @@
 ALTER TABLE listings
-ADD COLUMN featured_until DATETIME NULL AFTER is_featured;
+ADD COLUMN IF NOT EXISTS featured_until DATETIME NULL AFTER is_featured;
