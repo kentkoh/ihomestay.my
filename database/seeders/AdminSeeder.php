@@ -27,8 +27,8 @@ if ($stmt->fetch()) {
 
 $now = date('Y-m-d H:i:s');
 $stmt = $db->prepare('
-    INSERT INTO users (name, email, password, role, status, created_at, updated_at)
-    VALUES (?, ?, ?, "admin", "active", ?, ?)
+    INSERT INTO users (name, email, password, role, verification_status, status, created_at, updated_at)
+    VALUES (?, ?, ?, "admin", "verified", "active", ?, ?)
 ');
 $stmt->execute([
     $name,
