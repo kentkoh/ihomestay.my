@@ -51,7 +51,8 @@
                     <img src="<?php
                         $img = $listing['primary_image'] ?? null;
                         echo $img ? '/uploads/listings/' . $listing['id'] . '/' . htmlspecialchars($img) : '/assets/placeholder.jpg';
-                    ?>" style="width:48px;height:48px;border-radius:10px;object-fit:cover;" alt="">
+                    ?>" style="width:48px;height:48px;border-radius:10px;object-fit:cover;" alt=""
+                         onerror="this.src='/assets/placeholder.jpg';this.onerror=null;">
                     <div>
                         <div style="color:#fff;font-weight:600;font-size:.9rem;"><?= htmlspecialchars($listing['title']) ?></div>
                         <div style="color:#64748b;font-size:.8rem;">Selected listing</div>
