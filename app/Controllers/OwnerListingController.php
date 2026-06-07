@@ -66,7 +66,7 @@ class OwnerListingController {
             'max_guests'      => max(1, (int) ($_POST['max_guests'] ?? 1)),
             'bedrooms'        => max(0, (int) ($_POST['bedrooms'] ?? 1)),
             'bathrooms'       => max(1, (int) ($_POST['bathrooms'] ?? 1)),
-            'whatsapp'        => trim($_POST['whatsapp'] ?? ''),
+            'whatsapp'        => $user['whatsapp'] ?? '',
             'status'          => 'pending',
         ]);
 
@@ -121,7 +121,7 @@ class OwnerListingController {
             'max_guests'      => max(1, (int) ($_POST['max_guests'] ?? 1)),
             'bedrooms'        => max(0, (int) ($_POST['bedrooms'] ?? 1)),
             'bathrooms'       => max(1, (int) ($_POST['bathrooms'] ?? 1)),
-            'whatsapp'        => trim($_POST['whatsapp'] ?? ''),
+            'whatsapp'        => Auth::user()['whatsapp'] ?? '',
             'status'          => $newStatus,
             'rejection_reason' => $newStatus === 'pending' ? null : $listing['rejection_reason'],
         ]);

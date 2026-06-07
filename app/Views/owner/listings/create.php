@@ -150,13 +150,21 @@ foreach ($cities as $city) {
             <div class="card-body p-4">
                 <div class="col-md-5">
                     <label class="form-label fw-semibold">WhatsApp Number</label>
+                    <?php $wa = Auth::user()['whatsapp'] ?? ''; ?>
                     <div class="input-group">
-                        <span class="input-group-text">+60</span>
-                        <input type="text" name="whatsapp" class="form-control"
-                               value="<?= htmlspecialchars($old['whatsapp'] ?? '') ?>"
-                               placeholder="123456789">
+                        <span class="input-group-text"><i class="bi bi-whatsapp text-success"></i></span>
+                        <input type="text" class="form-control bg-light"
+                               value="<?= htmlspecialchars($wa ?: 'Not set') ?>" readonly>
                     </div>
-                    <div class="form-text">Guests will contact you via WhatsApp.</div>
+                    <div class="form-text">
+                        <?php if ($wa): ?>
+                            Your account WhatsApp number is applied automatically to all your listings.
+                            To change it, <a href="/owner/profile">update your profile</a>.
+                        <?php else: ?>
+                            <span class="text-danger"><i class="bi bi-exclamation-circle"></i>
+                            No WhatsApp number on your account. <a href="/owner/profile">Set it in your profile</a> so guests can contact you.</span>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
         </div>

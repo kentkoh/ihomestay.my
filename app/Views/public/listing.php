@@ -1,6 +1,6 @@
 <?php
 $isVerified = (bool) ($listing['owner_is_verified'] ?? false);
-$waNumber   = preg_replace('/\D/', '', $listing['whatsapp'] ?? '');
+$waNumber   = preg_replace('/\D/', '', $listing['owner_whatsapp'] ?? '');
 $waText     = urlencode('Hi, I saw your Listing "' . $listing['title'] . '" at ihomestay.my. Can I know more about this unit?');
 $waUrl      = 'https://wa.me/' . $waNumber . '?text=' . $waText;
 $hasMap     = !empty($listing['latitude']) && !empty($listing['longitude']);

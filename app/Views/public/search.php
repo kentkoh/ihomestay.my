@@ -132,8 +132,8 @@ function searchPageUrl(int $page, array $filters): string {
                                 RM <?= number_format((float) $listing['price_per_night'], 0) ?>
                                 <span class="fw-normal text-muted" style="font-size:.85rem;">/night</span>
                             </div>
-                            <?php if ($listing['whatsapp']): ?>
-                            <?php $wa = preg_replace('/\D/', '', $listing['whatsapp']); ?>
+                            <?php if ($listing['owner_whatsapp']): ?>
+                            <?php $wa = preg_replace('/\D/', '', $listing['owner_whatsapp']); ?>
                             <a href="https://wa.me/<?= $wa ?>?text=<?= urlencode('Hi, I\'m interested in your homestay: ' . $listing['title']) ?>"
                                class="btn btn-sm wa-btn"
                                target="_blank" rel="noopener noreferrer"

@@ -269,7 +269,7 @@
                                     <span class="listing-price">RM <?= number_format($l['price_per_night'], 0) ?></span>
                                     <span class="text-muted small"> / night</span>
                                 </div>
-                                <a href="https://wa.me/<?= htmlspecialchars(preg_replace('/\D/', '', $l['whatsapp'])) ?>"
+                                <a href="https://wa.me/<?= htmlspecialchars(preg_replace('/\D/', '', $l['owner_whatsapp'] ?? '')) ?>"
                                    target="_blank" rel="noopener"
                                    class="btn btn-sm btn-success" style="font-size:.75rem;padding:3px 10px;"
                                    onclick="event.stopPropagation()">

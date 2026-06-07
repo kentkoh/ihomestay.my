@@ -112,6 +112,12 @@ class Listing {
         return (int) $stmt->fetchColumn();
     }
 
+    public static function syncWhatsappForOwner(int $ownerId, string $whatsapp): void {
+        Database::get()->prepare(
+            "UPDATE listings SET whatsapp = ?, updated_at = NOW() WHERE owner_id = ?"
+        )->execute([$whatsapp, $ownerId]);
+    }
+
     public static function feature(int $id, ?string $until): void {
         Database::get()->prepare(
             "UPDATE listings SET is_featured = 1, featured_until = ?, updated_at = NOW() WHERE id = ?"
@@ -129,7 +135,8 @@ class Listing {
             "SELECT l.*, s.name as state_name, c.name as city_name,
                     (SELECT filename FROM listing_images WHERE listing_id=l.id AND is_primary=1 LIMIT 1) as primary_image,
                     (l.is_featured = 1 AND (l.featured_until IS NULL OR l.featured_until > NOW())) as is_featured_active,
-                    (u.verification_status = 'verified' OR u.role = 'admin') as owner_is_verified
+                    (u.verification_status = 'verified' OR u.role = 'admin') as owner_is_verified,
+                    u.whatsapp as owner_whatsapp
              FROM listings l
              JOIN states s ON l.state_id = s.id
              JOIN cities c ON l.city_id  = c.id
@@ -290,7 +297,7 @@ class Listing {
         $stmt = Database::get()->prepare(
             "SELECT l.*, s.name as state_name, s.slug as state_slug,
                     c.name as city_name, c.slug as city_slug,
-                    u.name as owner_name, u.role as owner_role,
+                    u.name as owner_name, u.role as owner_role, u.whatsapp as owner_whatsapp,
                     (u.verification_status = 'verified' OR u.role = 'admin') as owner_is_verified,
                     op.company_name as owner_company, op.about as owner_bio, op.profile_photo as owner_photo,
                     op.verified_at,
@@ -331,7 +338,8 @@ class Listing {
         $sql = "SELECT l.*, s.name as state_name, c.name as city_name,
                        (SELECT filename FROM listing_images WHERE listing_id=l.id AND is_primary=1 LIMIT 1) as primary_image,
                        (l.is_featured = 1 AND (l.featured_until IS NULL OR l.featured_until > NOW())) as is_featured_active,
-                       (u.verification_status = 'verified' OR u.role = 'admin') as owner_is_verified
+                       (u.verification_status = 'verified' OR u.role = 'admin') as owner_is_verified,
+                       u.whatsapp as owner_whatsapp
                 FROM listings l
                 JOIN states s ON l.state_id = s.id
                 JOIN cities c ON l.city_id  = c.id
@@ -374,7 +382,8 @@ class Listing {
         $baseSql = "SELECT l.*, s.name as state_name, c.name as city_name,
                            (SELECT filename FROM listing_images WHERE listing_id=l.id AND is_primary=1 LIMIT 1) as primary_image,
                            (l.is_featured = 1 AND (l.featured_until IS NULL OR l.featured_until > NOW())) as is_featured_active,
-                           (u.verification_status = 'verified' OR u.role = 'admin') as owner_is_verified
+                           (u.verification_status = 'verified' OR u.role = 'admin') as owner_is_verified,
+                           u.whatsapp as owner_whatsapp
                     FROM listings l
                     JOIN states s ON l.state_id = s.id
                     JOIN cities c ON l.city_id  = c.id
