@@ -209,33 +209,38 @@ class PaymentController {
     }
 
     private function createBillplzBill(array $fields): ?array {
-        if (!function_exists('curl_init')) {
-            error_log('BillPlz: curl not available');
-            return null;
-        }
+        $postBody = http_build_query($fields);
+        $auth     = base64_encode($this->apiKey . ':');
 
-        $ch = curl_init('https://www.billplz.com/api/v3/bills');
-        if ($ch === false) return null;
-
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST           => true,
-            CURLOPT_POSTFIELDS     => http_build_query($fields),
-            CURLOPT_USERPWD        => $this->apiKey . ':',
-            CURLOPT_TIMEOUT        => 30,
-            CURLOPT_CONNECTTIMEOUT => 10,
-            CURLOPT_SSL_VERIFYPEER => true,
+        $context = stream_context_create([
+            'http' => [
+                'method'        => 'POST',
+                'header'        => implode("\r\n", [
+                    'Content-Type: application/x-www-form-urlencoded',
+                    'Authorization: Basic ' . $auth,
+                    'Content-Length: ' . strlen($postBody),
+                ]),
+                'content'       => $postBody,
+                'timeout'       => 30,
+                'ignore_errors' => true,
+            ],
+            'ssl' => [
+                'verify_peer'      => true,
+                'verify_peer_name' => true,
+            ],
         ]);
 
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error    = curl_error($ch);
-        curl_close($ch);
+        $response = @file_get_contents('https://www.billplz.com/api/v3/bills', false, $context);
 
-        if ($error) {
-            error_log("BillPlz curl error: $error");
+        if ($response === false) {
+            error_log('BillPlz: request failed');
             return null;
         }
+
+        // $http_response_header is set by file_get_contents automatically
+        $statusLine = $http_response_header[0] ?? '';
+        preg_match('/HTTP\/\S+\s+(\d+)/', $statusLine, $m);
+        $httpCode = (int) ($m[1] ?? 0);
 
         if ($httpCode !== 200) {
             error_log("BillPlz HTTP $httpCode: $response");
