@@ -3,7 +3,23 @@
 class OwnerController {
     public function dashboard(): void {
         Auth::requireOwner();
+        $user      = Auth::user();
+        $listings  = Listing::byOwner($user['id']);
+        $total     = count($listings);
+        $published = count(array_filter($listings, fn($l) => $l['status'] === 'published'));
+        $pending   = count(array_filter($listings, fn($l) => $l['status'] === 'pending'));
+        $featured  = count(array_filter($listings, fn($l) =>
+            $l['is_featured'] && (!$l['featured_until'] || strtotime($l['featured_until']) > time())
+        ));
+        $isPro        = $user['plan_type'] !== 'free';
+        $isVerified   = in_array($user['verification_status'] ?? '', ['verified']);
+        $profile      = User::getFullProfile($user['id']);
+        $pageTitle    = 'My Dashboard';
+
+        ob_start();
         require APP_PATH . '/Views/owner/dashboard.php';
+        $content = ob_get_clean();
+        require APP_PATH . '/Views/layouts/main.php';
     }
 
     public function profile(): void {
