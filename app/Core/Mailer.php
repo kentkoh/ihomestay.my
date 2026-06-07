@@ -15,7 +15,17 @@ class Mailer {
             'htmlContent' => $html,
         ]);
 
+        if (!function_exists('curl_init')) {
+            error_log('Mailer: cURL is not available on this server.');
+            return false;
+        }
+
         $ch = curl_init('https://api.brevo.com/v3/smtp/email');
+        if ($ch === false) {
+            error_log('Mailer: curl_init failed.');
+            return false;
+        }
+
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST           => true,
