@@ -112,6 +112,33 @@ class Listing {
         return (int) $stmt->fetchColumn();
     }
 
+    public static function publishedRecent(int $limit = 6): array {
+        $st = Database::get()->prepare(
+            "SELECT l.*, s.name as state_name, c.name as city_name,
+                    (SELECT filename FROM listing_images WHERE listing_id=l.id AND is_primary=1 LIMIT 1) as primary_image
+             FROM listings l
+             JOIN states s ON l.state_id = s.id
+             JOIN cities c ON l.city_id  = c.id
+             WHERE l.status = 'published'
+             ORDER BY l.is_featured DESC, l.created_at DESC
+             LIMIT :lim"
+        );
+        $st->bindValue(':lim', $limit, PDO::PARAM_INT);
+        $st->execute();
+        return $st->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function countPublishedByState(): array {
+        $rows = Database::get()->query(
+            "SELECT s.id, s.name, s.slug, COUNT(l.id) as total
+             FROM states s
+             LEFT JOIN listings l ON l.state_id = s.id AND l.status = 'published'
+             GROUP BY s.id, s.name, s.slug
+             ORDER BY s.name"
+        )->fetchAll(PDO::FETCH_ASSOC);
+        return $rows;
+    }
+
     public static function allForAdmin(?string $status = null): array {
         $pdo = Database::get();
         $sql = "SELECT l.*, u.name as owner_name, s.name as state_name, c.name as city_name,

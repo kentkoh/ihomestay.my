@@ -28,13 +28,12 @@ require_once APP_PATH . '/Controllers/AdminListingController.php';
 require_once APP_PATH . '/Controllers/OwnerController.php';
 require_once APP_PATH . '/Controllers/OwnerListingController.php';
 require_once APP_PATH . '/Controllers/AdminArticleController.php';
+require_once APP_PATH . '/Controllers/PublicController.php';
 
 $router = new Router();
 
 // Homepage
-$router->get('/', function () {
-    echo '<h1>ihomestay.my</h1><p>Coming soon. <a href="/login">Login</a> | <a href="/register">Register</a></p>';
-});
+$router->get('/', ['PublicController', 'home']);
 
 // Auth
 $router->get('/login',     ['AuthController', 'showLogin']);

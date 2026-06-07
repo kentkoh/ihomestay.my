@@ -49,9 +49,35 @@
     <?= $content ?? '' ?>
 </main>
 
-<footer class="bg-white border-top mt-5 py-4">
-    <div class="container text-center text-muted small">
-        &copy; <?= date('Y') ?> ihomestay.my — Malaysia Homestay Directory
+<footer class="site-footer py-5 mt-0" style="background:#0f1923;color:#64748b;">
+    <div class="container">
+        <div class="row g-4 mb-4">
+            <div class="col-12 col-md-4">
+                <div class="fw-bold mb-2" style="color:#fff;font-size:1.1rem;">ihomestay.my</div>
+                <div class="small" style="color:#64748b;max-width:260px;line-height:1.7;">
+                    Direktori homestay Malaysia. Tempah terus dari tuan rumah — tiada caj platform, tiada orang tengah.
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="fw-semibold small mb-2" style="color:#94a3b8;">Pelancong</div>
+                <div class="d-flex flex-column gap-1">
+                    <a href="/search" class="small" style="color:#64748b;text-decoration:none;">Cari Homestay</a>
+                    <a href="/articles" class="small" style="color:#64748b;text-decoration:none;">Artikel &amp; Tips</a>
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="fw-semibold small mb-2" style="color:#94a3b8;">Tuan Rumah</div>
+                <div class="d-flex flex-column gap-1">
+                    <a href="/register" class="small" style="color:#64748b;text-decoration:none;">Daftar Percuma</a>
+                    <a href="/login" class="small" style="color:#64748b;text-decoration:none;">Log Masuk</a>
+                </div>
+            </div>
+        </div>
+        <div class="border-top pt-3" style="border-color:#1e293b!important;">
+            <div class="small text-center" style="color:#475569;">
+                &copy; <?= date('Y') ?> ihomestay.my — Malaysia Homestay Directory
+            </div>
+        </div>
     </div>
 </footer>
 
