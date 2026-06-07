@@ -41,6 +41,13 @@ class AuthController {
         }
 
         Auth::login($user);
+
+        if ($user['password_reset_required']) {
+            $_SESSION['flash']['warning'] = 'Welcome back! Your account has been migrated — please set a new password to continue.';
+            header('Location: /owner/profile');
+            exit;
+        }
+
         Auth::redirectToDashboard();
     }
 
