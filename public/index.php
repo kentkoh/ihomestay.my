@@ -49,7 +49,8 @@ $router->post('/register', ['AuthController', 'handleRegister']);
 $router->get('/logout',    ['AuthController', 'logout']);
 
 // Admin — dashboard
-$router->get('/admin/dashboard', ['AdminController', 'dashboard']);
+$router->get('/admin/dashboard',   ['AdminController', 'dashboard']);
+$router->get('/admin/test-email',  ['AdminController', 'testEmail']);
 
 // Admin — facilities
 $router->get('/admin/facilities',              ['AdminFacilityController', 'index']);

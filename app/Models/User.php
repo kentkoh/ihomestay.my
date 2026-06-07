@@ -22,8 +22,8 @@ class User {
     public function create(array $data): int {
         $now = date('Y-m-d H:i:s');
         $stmt = $this->db->prepare('
-            INSERT INTO users (name, email, password, phone, whatsapp, role, status, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, "active", ?, ?)
+            INSERT INTO users (name, email, password, phone, whatsapp, role, plan_type, status, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, "active", ?, ?)
         ');
         $stmt->execute([
             $data['name'],
@@ -32,6 +32,7 @@ class User {
             $data['phone'] ?? null,
             $data['whatsapp'] ?? null,
             $data['role'] ?? 'owner',
+            $data['plan_type'] ?? 'free',
             $now,
             $now,
         ]);
