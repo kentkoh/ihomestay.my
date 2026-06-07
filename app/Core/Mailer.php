@@ -170,6 +170,27 @@ class Mailer {
         self::send($adminEmail, 'ihomestay Admin', "New Listing: \"{$listingTitle}\" awaiting approval", $html);
     }
 
+    public static function passwordReset(string $toEmail, string $toName, string $resetUrl): void {
+        $html = self::wrap("Reset Your Password", "
+            <p>Hi <strong>" . htmlspecialchars($toName) . "</strong>,</p>
+            <p>We received a request to reset your password for your ihomestay.my account.</p>
+            <p style='margin-top:24px;'>
+                <a href='" . htmlspecialchars($resetUrl) . "'
+                   style='background:#e84c2b;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:600;'>
+                   Reset My Password
+                </a>
+            </p>
+            <p style='margin-top:24px;color:#64748b;font-size:14px;'>
+                This link expires in <strong>1 hour</strong>. If you did not request a password reset, you can safely ignore this email — your account remains secure.
+            </p>
+            <p style='color:#64748b;font-size:13px;'>
+                If the button above does not work, copy and paste this link into your browser:<br>
+                <a href='" . htmlspecialchars($resetUrl) . "' style='color:#e84c2b;word-break:break-all;'>" . htmlspecialchars($resetUrl) . "</a>
+            </p>
+        ");
+        self::send($toEmail, $toName, 'Reset your ihomestay.my password', $html);
+    }
+
     // ── Layout wrapper ─────────────────────────────────────────────
 
     private static function wrap(string $heading, string $body): string {

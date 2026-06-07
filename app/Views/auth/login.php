@@ -21,8 +21,11 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Password</label>
-                            <input type="password" name="password" class="form-control" required>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label class="form-label mb-0">Password</label>
+                                <a href="/forgot-password" class="small" style="font-size:.83rem;">Forgot password?</a>
+                            </div>
+                            <input type="password" name="password" class="form-control mt-1" required>
                         </div>
 
                         <div class="d-grid mt-4">
