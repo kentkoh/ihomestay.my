@@ -30,12 +30,23 @@ $hasMap     = !empty($listing['latitude']) && !empty($listing['longitude']);
 /* Map */
 #listingMap { height:280px; border-radius:10px; z-index:1; }
 
+/* Sticky bottom bar (verified only) */
+.sticky-cta { position:fixed; bottom:0; left:0; right:0; z-index:200; background:#0f1923; border-top:1px solid #1e293b; padding:12px 16px; display:flex; align-items:center; gap:12px; }
+.sticky-cta .price-sm { color:#fff; font-weight:700; font-size:1rem; white-space:nowrap; }
+.sticky-cta .price-sm span { color:#94a3b8; font-weight:400; font-size:.8rem; }
+.sticky-cta .verified-pill { display:inline-flex; align-items:center; gap:5px; background:rgba(16,185,129,.15); border:1px solid rgba(16,185,129,.3); color:#6ee7b7; border-radius:50px; padding:4px 12px; font-size:.78rem; font-weight:600; white-space:nowrap; }
+.sticky-cta .btn-map { background:rgba(255,255,255,.1); color:#fff; border:1px solid rgba(255,255,255,.2); border-radius:8px; padding:8px 14px; font-size:.85rem; white-space:nowrap; }
+.sticky-cta .btn-map:hover { background:rgba(255,255,255,.2); color:#fff; }
+.sticky-cta .btn-wa { background:#25D366; color:#fff; border:none; border-radius:8px; padding:8px 18px; font-size:.9rem; font-weight:600; white-space:nowrap; }
+.sticky-cta .btn-wa:hover { background:#1da851; color:#fff; }
+.has-sticky-bar { padding-bottom:72px; }
+
 /* Verified badge */
 .verified-badge { display:inline-flex; align-items:center; gap:5px; background:#d1fae5; color:#065f46; border-radius:50px; padding:3px 10px; font-size:.78rem; font-weight:600; }
 .unverified-badge { display:inline-flex; align-items:center; gap:5px; background:#fef3c7; color:#92400e; border-radius:50px; padding:3px 10px; font-size:.78rem; font-weight:600; }
 </style>
 
-<div style="background:#f8fafc; min-height:80vh; padding-bottom:3rem;">
+<div style="background:#f8fafc; min-height:80vh; padding-bottom:3rem;" class="<?= $isVerified ? 'has-sticky-bar' : '' ?>">
 <div class="container pt-4">
 
     <!-- Breadcrumb -->
@@ -154,7 +165,7 @@ $hasMap     = !empty($listing['latitude']) && !empty($listing['longitude']);
 
             <!-- Map -->
             <?php if ($hasMap): ?>
-            <div class="card border-0 shadow-sm p-4 mb-4">
+            <div id="map-section" class="card border-0 shadow-sm p-4 mb-4">
                 <h2 class="h5 fw-bold mb-3">Location</h2>
                 <div id="listingMap" class="mb-3"></div>
                 <div class="d-flex gap-2 flex-wrap">
@@ -251,6 +262,27 @@ $hasMap     = !empty($listing['latitude']) && !empty($listing['longitude']);
     </div>
 </div>
 </div>
+
+<?php if ($isVerified && $waNumber): ?>
+<!-- Sticky bottom bar — verified listings only -->
+<div class="sticky-cta">
+    <span class="verified-pill d-none d-sm-inline-flex">
+        <i class="bi bi-patch-check-fill"></i> Verified Owner
+    </span>
+    <div class="price-sm ms-sm-auto">
+        RM <?= number_format((float)$listing['price_per_night'], 0) ?>
+        <span>/night</span>
+    </div>
+    <?php if ($hasMap): ?>
+    <a href="#map-section" class="btn btn-map">
+        <i class="bi bi-map me-1"></i>Map
+    </a>
+    <?php endif; ?>
+    <a href="<?= $waUrl ?>" target="_blank" rel="noopener" class="btn btn-wa">
+        <i class="bi bi-whatsapp me-1"></i>WhatsApp
+    </a>
+</div>
+<?php endif; ?>
 
 <!-- Unverified owner modal -->
 <div class="modal fade" id="unverifiedModal" tabindex="-1" aria-labelledby="unverifiedModalLabel" aria-hidden="true">
