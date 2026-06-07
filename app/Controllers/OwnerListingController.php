@@ -72,6 +72,12 @@ class OwnerListingController {
 
         Listing::syncFacilities($listingId, $_POST['facilities'] ?? []);
 
+        $ownerName  = Auth::user()['name'];
+        $ownerEmail = Auth::user()['email'];
+        $title      = trim($_POST['title']);
+        Mailer::listingSubmitted($ownerEmail, $ownerName, $title);
+        Mailer::adminNewListing($ownerName, $title, $listingId);
+
         $_SESSION['flash']['info'] = 'Listing created! Upload your photos now so they are ready for review.';
         header("Location: /owner/listings/$listingId/edit?new=1");
         exit;

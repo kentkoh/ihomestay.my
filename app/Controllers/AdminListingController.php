@@ -21,6 +21,16 @@ class AdminListingController {
         if ($listing) {
             Listing::approve((int) $id);
             $_SESSION['flash']['success'] = "Listing \"{$listing['title']}\" approved and published.";
+            $owner = (new User())->findById((int) $listing['owner_id']);
+            if ($owner) {
+                $appUrl = env('APP_URL', 'https://ihomestay.my');
+                Mailer::listingApproved(
+                    $owner['email'],
+                    $owner['name'],
+                    $listing['title'],
+                    $appUrl . '/listing/' . $listing['slug']
+                );
+            }
         }
         header('Location: /admin/listings?status=pending');
         exit;
@@ -34,6 +44,10 @@ class AdminListingController {
         if ($listing && $reason !== '') {
             Listing::reject((int) $id, $reason);
             $_SESSION['flash']['success'] = "Listing \"{$listing['title']}\" rejected.";
+            $owner = (new User())->findById((int) $listing['owner_id']);
+            if ($owner) {
+                Mailer::listingRejected($owner['email'], $owner['name'], $listing['title'], $reason);
+            }
         }
         header('Location: /admin/listings?status=pending');
         exit;

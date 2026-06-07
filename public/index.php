@@ -11,6 +11,7 @@ require_once APP_PATH . '/Core/Database.php';
 require_once APP_PATH . '/Core/Router.php';
 require_once APP_PATH . '/Core/Auth.php';
 require_once APP_PATH . '/Core/CSRF.php';
+require_once APP_PATH . '/Core/Mailer.php';
 
 // Models
 require_once APP_PATH . '/Models/User.php';

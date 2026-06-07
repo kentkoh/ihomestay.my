@@ -107,6 +107,8 @@ class AuthController {
         $user = $this->userModel->findById($userId);
         Auth::login($user);
 
+        Mailer::welcome($email, $name);
+
         header('Location: /owner/dashboard');
         exit;
     }
