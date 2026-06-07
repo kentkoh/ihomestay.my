@@ -44,16 +44,15 @@ class AdminController {
         }
         echo "✅ TLS OK.\n\n";
 
-        // Step 4: AUTH
+        // Step 4: AUTH PLAIN
         fputs($sock, "EHLO ihomestay.my\r\n");
         while ($line = fgets($sock, 512)) { if ($line[3] === ' ') break; }
-        fputs($sock, "AUTH LOGIN\r\n");
-        fgets($sock, 512);
-        fputs($sock, base64_encode($user) . "\r\n");
-        fgets($sock, 512);
-        fputs($sock, base64_encode($pass) . "\r\n");
+        $credentials = base64_encode("\0" . $user . "\0" . $pass);
+        fputs($sock, "AUTH PLAIN {$credentials}\r\n");
         $auth = fgets($sock, 512);
-        echo "4. AUTH result: " . trim($auth) . "\n";
+        echo "4. AUTH PLAIN result: " . trim($auth) . "\n";
+        echo "   User: {$user}\n";
+        echo "   Pass length: " . strlen($pass) . " chars\n";
         fclose($sock);
 
         if (substr($auth, 0, 3) === '235') {

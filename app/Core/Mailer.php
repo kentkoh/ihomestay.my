@@ -39,11 +39,8 @@ class Mailer {
         $send("EHLO ihomestay.my");
         while ($line = $read()) { if ($line[3] === ' ') break; }
 
-        $send("AUTH LOGIN");
-        $read();
-        $send(base64_encode($user));
-        $read();
-        $send(base64_encode($pass));
+        $credentials = base64_encode("\0" . $user . "\0" . $pass);
+        $send("AUTH PLAIN {$credentials}");
         $auth = $read();
         if (substr($auth, 0, 3) !== '235') {
             fclose($sock);
