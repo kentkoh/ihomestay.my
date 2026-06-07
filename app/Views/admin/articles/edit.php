@@ -1,4 +1,47 @@
+<?php
+$extraScripts = <<<'HTML'
 <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs5.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs5.min.js"></script>
+HTML;
+$extraScripts .= '<script>
+const CSRF_TOKEN = ' . json_encode(CSRF::token()) . ';
+const INITIAL_BODY = ' . json_encode($article['body']) . ';
+$(function () {
+    $("#body-editor").summernote({
+        height: 400,
+        toolbar: [
+            ["style",  ["bold", "italic", "underline", "clear"]],
+            ["para",   ["ul", "ol", "paragraph"]],
+            ["align",  ["left", "center", "right"]],
+            ["insert", ["link", "picture"]],
+            ["view",   ["fullscreen", "codeview"]]
+        ],
+        callbacks: {
+            onImageUpload: function (files) {
+                uploadImage(files[0], this);
+            }
+        }
+    });
+    $("#body-editor").summernote("code", INITIAL_BODY);
+});
+function uploadImage(file, editor) {
+    const fd = new FormData();
+    fd.append("image", file);
+    fd.append("csrf_token", CSRF_TOKEN);
+    fetch("/admin/articles/upload-image", { method: "POST", body: fd })
+        .then(r => r.json())
+        .then(data => {
+            if (data.url) $(editor).summernote("insertImage", data.url);
+            else alert("Image upload failed: " + (data.error || "Unknown error"));
+        })
+        .catch(() => alert("Image upload failed."));
+}
+document.getElementById("article-form").addEventListener("submit", function () {
+    $("#body-editor").val($("#body-editor").summernote("code"));
+});
+</script>';
+?>
 
 <div class="mb-3">
     <a href="/admin/articles" class="text-decoration-none text-muted small">
@@ -27,7 +70,7 @@
 
             <div class="mb-3">
                 <label class="form-label fw-semibold">Body <span class="text-danger">*</span></label>
-                <textarea name="body" id="body-editor"><?= htmlspecialchars($article['body']) ?></textarea>
+                <textarea name="body" id="body-editor"></textarea>
             </div>
 
             <div class="mb-3">
@@ -56,46 +99,3 @@
         <a href="/admin/articles" class="btn btn-outline-secondary">Cancel</a>
     </div>
 </form>
-
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs5.min.js"></script>
-<script>
-const CSRF_TOKEN = <?= json_encode(CSRF::token()) ?>;
-
-$('#body-editor').summernote({
-    height: 400,
-    toolbar: [
-        ['style',  ['bold', 'italic', 'underline', 'clear']],
-        ['para',   ['ul', 'ol', 'paragraph']],
-        ['align',  ['left', 'center', 'right']],
-        ['insert', ['link', 'picture']],
-        ['view',   ['fullscreen', 'codeview']]
-    ],
-    callbacks: {
-        onImageUpload: function (files) {
-            uploadImage(files[0], this);
-        }
-    }
-});
-
-function uploadImage(file, editor) {
-    const fd = new FormData();
-    fd.append('image', file);
-    fd.append('csrf_token', CSRF_TOKEN);
-
-    fetch('/admin/articles/upload-image', { method: 'POST', body: fd })
-        .then(r => r.json())
-        .then(data => {
-            if (data.url) {
-                $(editor).summernote('insertImage', data.url);
-            } else {
-                alert('Image upload failed: ' + (data.error || 'Unknown error'));
-            }
-        })
-        .catch(() => alert('Image upload failed. Check connection.'));
-}
-
-document.getElementById('article-form').addEventListener('submit', function () {
-    $('#body-editor').val($('#body-editor').summernote('code'));
-});
-</script>
