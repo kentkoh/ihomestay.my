@@ -73,6 +73,14 @@
                     <a href="/login" class="small" style="color:#64748b;text-decoration:none;">Login</a>
                 </div>
             </div>
+            <div class="col-6 col-md-2">
+                <div class="fw-semibold small mb-2" style="color:#94a3b8;">Company</div>
+                <div class="d-flex flex-column gap-1">
+                    <a href="/about" class="small" style="color:#64748b;text-decoration:none;">About Us</a>
+                    <a href="/contact" class="small" style="color:#64748b;text-decoration:none;">Contact Us</a>
+                    <a href="/terms" class="small" style="color:#64748b;text-decoration:none;">Terms of Use</a>
+                </div>
+            </div>
         </div>
         <div class="border-top pt-3" style="border-color:#1e293b!important;">
             <div class="small text-center" style="color:#475569;">

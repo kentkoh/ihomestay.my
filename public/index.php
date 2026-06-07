@@ -103,6 +103,11 @@ $router->post('/owner/listings/{id}/images/upload',                   ['OwnerLis
 $router->post('/owner/listings/{listingId}/images/{imageId}/delete',  ['OwnerListingController', 'deleteImage']);
 $router->post('/owner/listings/{listingId}/images/{imageId}/primary', ['OwnerListingController', 'setPrimary']);
 
+// Public static pages
+$router->get('/about',   ['PublicController', 'about']);
+$router->get('/contact', ['PublicController', 'contact']);
+$router->get('/terms',   ['PublicController', 'terms']);
+
 // Public articles (fixed routes — must be before parameterised state/city)
 $router->get('/articles',          ['PublicController', 'articles']);
 $router->get('/articles/{slug}',   ['PublicController', 'articleDetail']);

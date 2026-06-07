@@ -124,4 +124,28 @@ class PublicController {
         $content = ob_get_clean();
         require APP_PATH . '/Views/layouts/main.php';
     }
+
+    public function about(): void {
+        $pageTitle = 'About Us';
+        ob_start();
+        require APP_PATH . '/Views/public/about.php';
+        $content = ob_get_clean();
+        require APP_PATH . '/Views/layouts/main.php';
+    }
+
+    public function contact(): void {
+        $pageTitle = 'Contact Us';
+        ob_start();
+        require APP_PATH . '/Views/public/contact.php';
+        $content = ob_get_clean();
+        require APP_PATH . '/Views/layouts/main.php';
+    }
+
+    public function terms(): void {
+        $pageTitle = 'Terms of Use';
+        ob_start();
+        require APP_PATH . '/Views/public/terms.php';
+        $content = ob_get_clean();
+        require APP_PATH . '/Views/layouts/main.php';
+    }
 }
