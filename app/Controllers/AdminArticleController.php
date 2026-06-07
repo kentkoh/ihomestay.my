@@ -134,6 +134,56 @@ class AdminArticleController {
         exit;
     }
 
+    public function uploadImage(): void {
+        ob_start();
+        try {
+            Auth::requireAdmin();
+            CSRF::verify();
+
+            if (empty($_FILES['image']['tmp_name'])) {
+                ob_clean();
+                header('Content-Type: application/json');
+                echo json_encode(['error' => 'No file received.']);
+                exit;
+            }
+
+            $file    = $_FILES['image'];
+            $allowed = ['image/jpeg', 'image/png', 'image/webp'];
+            $ext     = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            $extMap  = ['jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png', 'webp' => 'image/webp'];
+            $mime    = $extMap[$ext] ?? (@mime_content_type($file['tmp_name']) ?: '');
+
+            if ($file['size'] > 5 * 1024 * 1024 || !in_array($mime, $allowed, true)) {
+                ob_clean();
+                header('Content-Type: application/json');
+                echo json_encode(['error' => 'Invalid file. JPG/PNG/WebP, max 5 MB.']);
+                exit;
+            }
+
+            $dir = UPLOAD_PATH . '/articles/content';
+            if (!is_dir($dir)) mkdir($dir, 0755, true);
+
+            $filename = time() . '_' . bin2hex(random_bytes(6)) . '.' . $ext;
+            if (!move_uploaded_file($file['tmp_name'], $dir . '/' . $filename)) {
+                ob_clean();
+                header('Content-Type: application/json');
+                echo json_encode(['error' => 'Failed to save file.']);
+                exit;
+            }
+
+            ob_clean();
+            header('Content-Type: application/json');
+            echo json_encode(['url' => '/uploads/articles/content/' . $filename]);
+            exit;
+
+        } catch (Throwable $e) {
+            ob_clean();
+            header('Content-Type: application/json');
+            echo json_encode(['error' => $e->getMessage()]);
+            exit;
+        }
+    }
+
     // ── Helpers ──────────────────────────────────────────────────────────────
 
     private function findOrFail(int $id): array {

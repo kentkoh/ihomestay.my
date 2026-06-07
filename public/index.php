@@ -61,10 +61,11 @@ $router->post('/admin/listings/{id}/approve',    ['AdminListingController', 'app
 $router->post('/admin/listings/{id}/reject',     ['AdminListingController', 'reject']);
 $router->post('/admin/listings/{id}/suspend',    ['AdminListingController', 'suspend']);
 
-// Admin — articles
+// Admin — articles (fixed routes before parameterised)
 $router->get('/admin/articles',                  ['AdminArticleController', 'index']);
 $router->get('/admin/articles/create',           ['AdminArticleController', 'create']);
 $router->post('/admin/articles/store',           ['AdminArticleController', 'store']);
+$router->post('/admin/articles/upload-image',    ['AdminArticleController', 'uploadImage']);
 $router->get('/admin/articles/{id}/edit',        ['AdminArticleController', 'edit']);
 $router->post('/admin/articles/{id}/update',     ['AdminArticleController', 'update']);
 $router->post('/admin/articles/{id}/delete',     ['AdminArticleController', 'delete']);
