@@ -11,6 +11,10 @@ define('CONFIG_PATH', ROOT_PATH . '/config');
 require_once CONFIG_PATH . '/app.php';
 require_once ROOT_PATH . '/app/Core/Database.php';
 
+// Force error visibility in CLI regardless of APP_DEBUG setting
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 $db = Database::get();
 
 // Create migrations log table first
@@ -40,7 +44,12 @@ foreach ($files as $file) {
     }
 
     $sql = file_get_contents($file);
-    $db->exec($sql);
+    try {
+        $db->exec($sql);
+    } catch (PDOException $e) {
+        echo "  [ERROR] $filename: " . $e->getMessage() . "\n";
+        exit(1);
+    }
 
     $stmt = $db->prepare('INSERT INTO migrations_log (filename, run_at) VALUES (?, ?)');
     $stmt->execute([$filename, date('Y-m-d H:i:s')]);
