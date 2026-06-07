@@ -47,8 +47,15 @@ foreach ($files as $file) {
     try {
         $db->exec($sql);
     } catch (PDOException $e) {
-        echo "  [ERROR] $filename: " . $e->getMessage() . "\n";
-        exit(1);
+        $mysqlCode = (int)($e->errorInfo[1] ?? 0);
+        // 1060 = duplicate column, 1061 = duplicate key, 1050 = table already exists
+        if (in_array($mysqlCode, [1050, 1060, 1061])) {
+            echo "  [warn] $filename: already applied ({$e->errorInfo[1]}), continuing\n";
+            // Still record it as run so we don't retry next time
+        } else {
+            echo "  [ERROR] $filename: " . $e->getMessage() . "\n";
+            exit(1);
+        }
     }
 
     $stmt = $db->prepare('INSERT INTO migrations_log (filename, run_at) VALUES (?, ?)');
