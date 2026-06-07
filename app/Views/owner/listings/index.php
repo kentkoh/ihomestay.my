@@ -86,6 +86,7 @@ $isPro = $user['plan_type'] !== 'free';
                                     <?php if ($l['status'] === 'published'): ?>
                                         <?php
                                             $isFeatured = $l['is_featured'] && (!$l['featured_until'] || strtotime($l['featured_until']) > time());
+                                            $ownerIsVerified = ($user['verification_status'] ?? '') === 'verified';
                                         ?>
                                         <?php if ($isFeatured): ?>
                                             <span class="btn btn-sm" style="background:#fef2f0;color:#e84c2b;border:1px solid #fca5a5;pointer-events:none;">
@@ -94,10 +95,15 @@ $isPro = $user['plan_type'] !== 'free';
                                                     until <?= date('d M', strtotime($l['featured_until'])) ?>
                                                 <?php endif; ?>
                                             </span>
-                                        <?php else: ?>
+                                        <?php elseif ($ownerIsVerified): ?>
                                             <a href="/feature/<?= $l['id'] ?>" class="btn btn-sm"
                                                style="background:#e84c2b;color:#fff;">
                                                 <i class="bi bi-lightning-charge-fill me-1"></i>Feature This
+                                            </a>
+                                        <?php else: ?>
+                                            <a href="/owner/profile" title="Verified Hosts only"
+                                               class="btn btn-sm" style="background:#f1f5f9;color:#94a3b8;">
+                                                <i class="bi bi-lock-fill me-1"></i>Feature This
                                             </a>
                                         <?php endif; ?>
                                     <?php endif; ?>

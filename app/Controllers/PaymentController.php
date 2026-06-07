@@ -38,6 +38,13 @@ class PaymentController {
             exit;
         }
 
+        $owner = Auth::user();
+        if (($owner['verification_status'] ?? '') !== 'verified') {
+            $_SESSION['flash']['warning'] = 'Featured listings are available to Verified Hosts only. Get verified first to unlock this feature.';
+            header('Location: /owner/profile');
+            exit;
+        }
+
         $packages     = $this->packageModel->active();
         $packageModel = $this->packageModel;
         $pageTitle    = 'Feature Your Listing';
@@ -63,6 +70,12 @@ class PaymentController {
         if ($listing['status'] !== 'published') {
             $_SESSION['flash']['danger'] = 'Only published listings can be featured.';
             header('Location: /owner/listings');
+            exit;
+        }
+
+        if ((Auth::user()['verification_status'] ?? '') !== 'verified') {
+            $_SESSION['flash']['warning'] = 'Featured listings are available to Verified Hosts only.';
+            header('Location: /owner/profile');
             exit;
         }
 

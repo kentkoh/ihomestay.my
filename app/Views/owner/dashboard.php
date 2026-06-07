@@ -233,10 +233,17 @@ $statusColors = [
                             <!-- Actions -->
                             <div class="d-flex gap-2 mt-2 flex-wrap align-items-center">
                                 <?php if ($l['status'] === 'published' && !$isFeatured): ?>
-                                    <a href="/feature/<?= $l['id'] ?>" class="btn btn-sm fw-semibold"
-                                       style="background:#e84c2b;color:#fff;border-radius:7px;font-size:.78rem;padding:.25rem .75rem;">
-                                        <i class="bi bi-lightning-charge-fill me-1"></i>Feature This
-                                    </a>
+                                    <?php if ($isVerified): ?>
+                                        <a href="/feature/<?= $l['id'] ?>" class="btn btn-sm fw-semibold"
+                                           style="background:#e84c2b;color:#fff;border-radius:7px;font-size:.78rem;padding:.25rem .75rem;">
+                                            <i class="bi bi-lightning-charge-fill me-1"></i>Feature This
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="/owner/profile" title="Verified Hosts only — get verified to unlock"
+                                           class="btn btn-sm" style="background:#f1f5f9;color:#94a3b8;border-radius:7px;font-size:.78rem;padding:.25rem .75rem;">
+                                            <i class="bi bi-lock-fill me-1"></i>Feature This
+                                        </a>
+                                    <?php endif; ?>
                                 <?php endif; ?>
                                 <?php if ($l['status'] === 'published'): ?>
                                     <a href="/listing/<?= htmlspecialchars($l['slug']) ?>" target="_blank"
