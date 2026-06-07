@@ -3,10 +3,16 @@
 class Auth {
     public static function login(array $user): void {
         session_regenerate_id(true);
-        $_SESSION['user_id']   = $user['id'];
-        $_SESSION['user_name'] = $user['name'];
-        $_SESSION['user_role'] = $user['role'];
-        $_SESSION['user_email'] = $user['email'];
+        $_SESSION['user_id']       = $user['id'];
+        $_SESSION['user_name']     = $user['name'];
+        $_SESSION['user_role']     = $user['role'];
+        $_SESSION['user_email']    = $user['email'];
+        $_SESSION['user_whatsapp'] = $user['whatsapp'] ?? '';
+    }
+
+    public static function refreshSession(array $data): void {
+        if (isset($data['name']))     $_SESSION['user_name']     = $data['name'];
+        if (isset($data['whatsapp'])) $_SESSION['user_whatsapp'] = $data['whatsapp'];
     }
 
     public static function logout(): void {
@@ -21,10 +27,11 @@ class Auth {
     public static function user(): ?array {
         if (!self::check()) return null;
         return [
-            'id'    => $_SESSION['user_id'],
-            'name'  => $_SESSION['user_name'],
-            'role'  => $_SESSION['user_role'],
-            'email' => $_SESSION['user_email'],
+            'id'       => $_SESSION['user_id'],
+            'name'     => $_SESSION['user_name'],
+            'role'     => $_SESSION['user_role'],
+            'email'    => $_SESSION['user_email'],
+            'whatsapp' => $_SESSION['user_whatsapp'] ?? '',
         ];
     }
 

@@ -85,8 +85,11 @@ $router->post('/admin/articles/{id}/update',     ['AdminArticleController', 'upd
 $router->post('/admin/articles/{id}/delete',     ['AdminArticleController', 'delete']);
 $router->post('/admin/articles/{id}/toggle',     ['AdminArticleController', 'toggle']);
 
-// Owner — dashboard
-$router->get('/owner/dashboard', ['OwnerController', 'dashboard']);
+// Owner — dashboard & profile
+$router->get('/owner/dashboard',                ['OwnerController', 'dashboard']);
+$router->get('/owner/profile',                  ['OwnerController', 'profile']);
+$router->post('/owner/profile/update',          ['OwnerController', 'updateProfile']);
+$router->post('/owner/profile/change-password', ['OwnerController', 'changePassword']);
 
 // Owner — listings (specific routes before parameterised)
 $router->get('/owner/listings',                                       ['OwnerListingController', 'index']);

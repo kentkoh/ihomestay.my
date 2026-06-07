@@ -64,6 +64,55 @@ class User {
         $stmt->execute([password_hash($newPassword, PASSWORD_DEFAULT), date('Y-m-d H:i:s'), $id]);
     }
 
+    public static function getFullProfile(int $userId): ?array {
+        $stmt = Database::get()->prepare(
+            "SELECT u.*, op.company_name, op.profile_photo, op.about, op.address
+             FROM users u
+             LEFT JOIN owner_profiles op ON op.user_id = u.id
+             WHERE u.id = ? LIMIT 1"
+        );
+        $stmt->execute([$userId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    public static function updateUserFields(int $id, array $data): void {
+        Database::get()->prepare(
+            "UPDATE users SET name = ?, phone = ?, whatsapp = ?, updated_at = NOW() WHERE id = ?"
+        )->execute([$data['name'], $data['phone'] ?? null, $data['whatsapp'] ?? null, $id]);
+    }
+
+    public static function updateOwnerProfile(int $userId, array $data): void {
+        $pdo  = Database::get();
+        $rows = $pdo->prepare("SELECT id FROM owner_profiles WHERE user_id = ?")->execute([$userId]);
+        // Upsert: update if exists, insert if not
+        $check = $pdo->prepare("SELECT id FROM owner_profiles WHERE user_id = ?");
+        $check->execute([$userId]);
+        if ($check->fetch()) {
+            $pdo->prepare(
+                "UPDATE owner_profiles SET company_name = ?, about = ?, address = ?,
+                 profile_photo = COALESCE(?, profile_photo), updated_at = NOW()
+                 WHERE user_id = ?"
+            )->execute([
+                $data['company_name'] ?? null,
+                $data['about']        ?? null,
+                $data['address']      ?? null,
+                $data['profile_photo'] ?? null,
+                $userId,
+            ]);
+        } else {
+            $pdo->prepare(
+                "INSERT INTO owner_profiles (user_id, company_name, about, address, profile_photo, created_at, updated_at)
+                 VALUES (?, ?, ?, ?, ?, NOW(), NOW())"
+            )->execute([
+                $userId,
+                $data['company_name']  ?? null,
+                $data['about']         ?? null,
+                $data['address']       ?? null,
+                $data['profile_photo'] ?? null,
+            ]);
+        }
+    }
+
     public static function allOwners(): array {
         return Database::get()->query(
             "SELECT u.*, op.company_name, op.verified_at,
