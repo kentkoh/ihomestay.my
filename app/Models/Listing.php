@@ -112,6 +112,18 @@ class Listing {
         return (int) $stmt->fetchColumn();
     }
 
+    public static function feature(int $id, ?string $until): void {
+        Database::get()->prepare(
+            "UPDATE listings SET is_featured = 1, featured_until = ?, updated_at = NOW() WHERE id = ?"
+        )->execute([$until, $id]);
+    }
+
+    public static function unfeature(int $id): void {
+        Database::get()->prepare(
+            "UPDATE listings SET is_featured = 0, featured_until = NULL, updated_at = NOW() WHERE id = ?"
+        )->execute([$id]);
+    }
+
     public static function publishedRecent(int $limit = 6): array {
         $st = Database::get()->prepare(
             "SELECT l.*, s.name as state_name, c.name as city_name,
@@ -120,7 +132,7 @@ class Listing {
              JOIN states s ON l.state_id = s.id
              JOIN cities c ON l.city_id  = c.id
              WHERE l.status = 'published'
-             ORDER BY l.is_featured DESC, l.created_at DESC
+             ORDER BY (l.is_featured = 1 AND (l.featured_until IS NULL OR l.featured_until > NOW())) DESC, l.created_at DESC
              LIMIT :lim"
         );
         $st->bindValue(':lim', $limit, PDO::PARAM_INT);
@@ -143,7 +155,8 @@ class Listing {
         $pdo = Database::get();
         $sql = "SELECT l.*, u.name as owner_name, s.name as state_name, c.name as city_name,
                        (SELECT filename FROM listing_images
-                        WHERE listing_id=l.id AND is_primary=1 LIMIT 1) as primary_image
+                        WHERE listing_id=l.id AND is_primary=1 LIMIT 1) as primary_image,
+                       (l.is_featured = 1 AND (l.featured_until IS NULL OR l.featured_until > NOW())) as is_featured_active
                 FROM listings l
                 JOIN users u  ON l.owner_id  = u.id
                 JOIN states s ON l.state_id  = s.id
@@ -313,7 +326,7 @@ class Listing {
                 JOIN states s ON l.state_id = s.id
                 JOIN cities c ON l.city_id  = c.id
                 WHERE l.status = 'published'" . $where . "
-                ORDER BY l.is_featured DESC, l.created_at DESC
+                ORDER BY (l.is_featured = 1 AND (l.featured_until IS NULL OR l.featured_until > NOW())) DESC, l.created_at DESC
                 LIMIT :limit OFFSET :offset";
 
         $stmt = $pdo->prepare($sql);

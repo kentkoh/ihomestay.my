@@ -28,6 +28,7 @@ require_once APP_PATH . '/Controllers/AdminListingController.php';
 require_once APP_PATH . '/Controllers/OwnerController.php';
 require_once APP_PATH . '/Controllers/OwnerListingController.php';
 require_once APP_PATH . '/Controllers/AdminArticleController.php';
+require_once APP_PATH . '/Controllers/AdminOwnerController.php';
 require_once APP_PATH . '/Controllers/PublicController.php';
 
 $router = new Router();
@@ -59,10 +60,17 @@ $router->post('/admin/facilities/{id}/delete', ['AdminFacilityController', 'dele
 $router->post('/admin/facilities/{id}/toggle', ['AdminFacilityController', 'toggle']);
 
 // Admin — listings
-$router->get('/admin/listings',                  ['AdminListingController', 'index']);
-$router->post('/admin/listings/{id}/approve',    ['AdminListingController', 'approve']);
-$router->post('/admin/listings/{id}/reject',     ['AdminListingController', 'reject']);
-$router->post('/admin/listings/{id}/suspend',    ['AdminListingController', 'suspend']);
+$router->get('/admin/listings',                   ['AdminListingController', 'index']);
+$router->post('/admin/listings/{id}/approve',     ['AdminListingController', 'approve']);
+$router->post('/admin/listings/{id}/reject',      ['AdminListingController', 'reject']);
+$router->post('/admin/listings/{id}/suspend',     ['AdminListingController', 'suspend']);
+$router->post('/admin/listings/{id}/feature',     ['AdminListingController', 'feature']);
+$router->post('/admin/listings/{id}/unfeature',   ['AdminListingController', 'unfeature']);
+
+// Admin — owners
+$router->get('/admin/owners',                    ['AdminOwnerController', 'index']);
+$router->post('/admin/owners/{id}/verify',       ['AdminOwnerController', 'verify']);
+$router->post('/admin/owners/{id}/unverify',     ['AdminOwnerController', 'unverify']);
 
 // Admin — articles (fixed routes before parameterised)
 $router->get('/admin/articles',                  ['AdminArticleController', 'index']);

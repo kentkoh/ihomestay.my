@@ -36,6 +36,7 @@ $statusColors  = ['pending'=>'warning','published'=>'success','rejected'=>'dange
                         <th>Location</th>
                         <th>Price</th>
                         <th>Status</th>
+                        <th class="text-center">Featured</th>
                         <th class="text-end pe-3">Actions</th>
                     </tr>
                 </thead>
@@ -67,6 +68,22 @@ $statusColors  = ['pending'=>'warning','published'=>'success','rejected'=>'dange
                                     <?= $l['status'] ?>
                                 </span>
                             </td>
+                            <td class="text-center">
+                                <?php if ($l['is_featured_active']): ?>
+                                    <span title="<?= $l['featured_until'] ? 'Until ' . date('d M Y', strtotime($l['featured_until'])) : 'Featured forever' ?>">
+                                        <i class="bi bi-star-fill text-warning fs-5"></i>
+                                    </span>
+                                    <?php if ($l['featured_until']): ?>
+                                        <div class="text-muted" style="font-size:.68rem;">
+                                            until <?= date('d M Y', strtotime($l['featured_until'])) ?>
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="text-muted" style="font-size:.68rem;">forever</div>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <i class="bi bi-star text-muted"></i>
+                                <?php endif; ?>
+                            </td>
                             <td class="text-end pe-3">
                                 <div class="d-flex gap-1 justify-content-end">
                                     <?php if ($l['status'] === 'pending'): ?>
@@ -91,6 +108,22 @@ $statusColors  = ['pending'=>'warning','published'=>'success','rejected'=>'dange
                                                 <i class="bi bi-pause-circle"></i>
                                             </button>
                                         </form>
+                                        <?php if ($l['is_featured_active']): ?>
+                                            <form method="POST" action="/admin/listings/<?= $l['id'] ?>/unfeature">
+                                                <?= CSRF::field() ?>
+                                                <button class="btn btn-sm btn-warning" title="Remove Featured"
+                                                        onclick="return confirm('Remove featured status?')">
+                                                    <i class="bi bi-star-fill"></i>
+                                                </button>
+                                            </form>
+                                        <?php else: ?>
+                                            <button class="btn btn-sm btn-outline-warning" title="Set as Featured"
+                                                    data-bs-toggle="modal" data-bs-target="#featureModal"
+                                                    data-listing-id="<?= $l['id'] ?>"
+                                                    data-listing-title="<?= htmlspecialchars($l['title']) ?>">
+                                                <i class="bi bi-star"></i>
+                                            </button>
+                                        <?php endif; ?>
                                     <?php endif; ?>
                                     <?php if ($l['status'] === 'suspended'): ?>
                                         <form method="POST" action="/admin/listings/<?= $l['id'] ?>/approve">
@@ -116,6 +149,57 @@ $statusColors  = ['pending'=>'warning','published'=>'success','rejected'=>'dange
         </div>
     </div>
 <?php endif; ?>
+
+<!-- Feature Modal -->
+<div class="modal fade" id="featureModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form id="featureForm" method="POST">
+            <?= CSRF::field() ?>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title fw-semibold"><i class="bi bi-star-fill text-warning me-2"></i>Set Featured Listing</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small mb-3" id="feature-listing-name"></p>
+                    <label class="form-label fw-semibold">Duration</label>
+                    <div class="d-flex flex-column gap-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="duration" id="dur7" value="7">
+                            <label class="form-check-label" for="dur7">7 days</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="duration" id="dur14" value="14">
+                            <label class="form-check-label" for="dur14">14 days</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="duration" id="dur30" value="30">
+                            <label class="form-check-label" for="dur30">30 days</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="duration" id="durCustom" value="custom">
+                            <label class="form-check-label" for="durCustom">Custom date</label>
+                        </div>
+                        <div id="customDateWrap" class="ps-4" style="display:none;">
+                            <input type="date" name="custom_date" id="customDate" class="form-control form-control-sm"
+                                   min="<?= date('Y-m-d', strtotime('+1 day')) ?>">
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="duration" id="durForever" value="forever" checked>
+                            <label class="form-check-label" for="durForever">Forever (no expiry)</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning btn-sm fw-semibold">
+                        <i class="bi bi-star-fill me-1"></i>Set Featured
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
 <!-- Reject Modal -->
 <div class="modal fade" id="rejectModal" tabindex="-1">
@@ -148,5 +232,18 @@ document.getElementById('rejectModal').addEventListener('show.bs.modal', functio
     const btn = e.relatedTarget;
     document.getElementById('rejectForm').action = '/admin/listings/' + btn.dataset.listingId + '/reject';
     document.getElementById('reject-listing-name').textContent = btn.dataset.listingTitle;
+});
+
+document.getElementById('featureModal').addEventListener('show.bs.modal', function(e) {
+    const btn = e.relatedTarget;
+    document.getElementById('featureForm').action = '/admin/listings/' + btn.dataset.listingId + '/feature';
+    document.getElementById('feature-listing-name').textContent = btn.dataset.listingTitle;
+});
+
+document.querySelectorAll('input[name="duration"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        document.getElementById('customDateWrap').style.display =
+            this.value === 'custom' ? 'block' : 'none';
+    });
 });
 </script>

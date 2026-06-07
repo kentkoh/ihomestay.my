@@ -63,4 +63,21 @@ class User {
         ');
         $stmt->execute([password_hash($newPassword, PASSWORD_DEFAULT), date('Y-m-d H:i:s'), $id]);
     }
+
+    public static function allOwners(): array {
+        return Database::get()->query(
+            "SELECT u.*, op.company_name, op.verified_at,
+                    (SELECT COUNT(*) FROM listings WHERE owner_id = u.id AND status = 'published') as listing_count
+             FROM users u
+             LEFT JOIN owner_profiles op ON op.user_id = u.id
+             WHERE u.role = 'owner'
+             ORDER BY u.created_at DESC"
+        )->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function setVerification(int $id, string $status): void {
+        Database::get()->prepare(
+            "UPDATE users SET verification_status = ?, updated_at = NOW() WHERE id = ?"
+        )->execute([$status, $id]);
+    }
 }

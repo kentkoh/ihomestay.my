@@ -64,8 +64,8 @@
         <a href="/admin/articles" class="sidebar-link <?= str_starts_with($_SERVER['REQUEST_URI'], '/admin/articles') ? 'active' : '' ?>">
             <i class="bi bi-newspaper"></i> Articles
         </a>
-        <a href="#" class="sidebar-link text-secondary" style="opacity:.4;pointer-events:none;">
-            <i class="bi bi-people-fill"></i> Owners <span class="ms-auto badge bg-secondary" style="font-size:.6rem;">Soon</span>
+        <a href="/admin/owners" class="sidebar-link <?= str_starts_with($_SERVER['REQUEST_URI'], '/admin/owners') ? 'active' : '' ?>">
+            <i class="bi bi-people-fill"></i> Owners
         </a>
     </nav>
 
