@@ -71,6 +71,14 @@
         <a href="/admin/featured-packages" class="sidebar-link <?= str_starts_with($_SERVER['REQUEST_URI'], '/admin/featured-packages') ? 'active' : '' ?>">
             <i class="bi bi-star-fill"></i> Featured Packages
         </a>
+        <a href="/admin/verifications" class="sidebar-link <?= str_starts_with($_SERVER['REQUEST_URI'], '/admin/verifications') ? 'active' : '' ?>">
+            <i class="bi bi-patch-check-fill"></i> Verifications
+            <?php
+            $pendingVr = (int) Database::get()->query("SELECT COUNT(*) FROM verification_requests WHERE status='pending_review'")->fetchColumn();
+            if ($pendingVr > 0): ?>
+                <span class="badge rounded-pill ms-auto" style="background:#e84c2b;font-size:.65rem;"><?= $pendingVr ?></span>
+            <?php endif; ?>
+        </a>
     </nav>
 
     <div class="mt-auto">

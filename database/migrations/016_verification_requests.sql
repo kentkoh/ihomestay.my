@@ -1,0 +1,23 @@
+CREATE TABLE IF NOT EXISTS verification_requests (
+    id                  INT AUTO_INCREMENT PRIMARY KEY,
+    owner_id            INT NOT NULL,
+    request_type        ENUM('individual','company') NOT NULL DEFAULT 'individual',
+    document_path       VARCHAR(500) NOT NULL,
+    selfie_path         VARCHAR(500) NULL,
+    selected_listing_id INT NULL,
+    promo_eligible      TINYINT(1) NOT NULL DEFAULT 0,
+    featured_activated  TINYINT(1) NOT NULL DEFAULT 0,
+    bill_id             VARCHAR(100) NULL,
+    amount              DECIMAL(10,2) NOT NULL DEFAULT 49.00,
+    payment_status      ENUM('pending','paid','failed') NOT NULL DEFAULT 'pending',
+    paid_at             DATETIME NULL,
+    status              ENUM('pending_payment','pending_review','approved','rejected') NOT NULL DEFAULT 'pending_payment',
+    admin_notes         TEXT NULL,
+    reviewed_by         INT NULL,
+    reviewed_at         DATETIME NULL,
+    created_at          DATETIME NOT NULL DEFAULT NOW(),
+    updated_at          DATETIME NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+    INDEX idx_owner_id (owner_id),
+    INDEX idx_bill_id  (bill_id),
+    INDEX idx_status   (status)
+);

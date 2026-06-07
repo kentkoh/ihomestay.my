@@ -131,9 +131,9 @@ $statusColors = [
                 </div>
             </div>
             <div class="col-lg-4 text-lg-end">
-                <a href="/owner/profile" class="btn fw-bold px-4 py-2"
+                <a href="/get-verified" class="btn fw-bold px-4 py-2"
                    style="background:#e84c2b;color:#fff;border-radius:10px;font-size:.95rem;">
-                    <i class="bi bi-patch-check me-2"></i>Apply for Verification
+                    <i class="bi bi-patch-check me-2"></i>Get Verified — RM49/yr
                 </a>
                 <div style="color:#475569;font-size:.75rem;margin-top:.5rem;">Free · Reviewed within 24 hours</div>
             </div>

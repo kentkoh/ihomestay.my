@@ -22,6 +22,7 @@ require_once APP_PATH . '/Models/Listing.php';
 require_once APP_PATH . '/Models/Article.php';
 require_once APP_PATH . '/Models/FeaturedPackage.php';
 require_once APP_PATH . '/Models/Payment.php';
+require_once APP_PATH . '/Models/VerificationRequest.php';
 
 // Controllers
 require_once APP_PATH . '/Controllers/AuthController.php';
@@ -35,6 +36,8 @@ require_once APP_PATH . '/Controllers/AdminOwnerController.php';
 require_once APP_PATH . '/Controllers/PublicController.php';
 require_once APP_PATH . '/Controllers/PaymentController.php';
 require_once APP_PATH . '/Controllers/AdminFeaturedPackageController.php';
+require_once APP_PATH . '/Controllers/VerificationController.php';
+require_once APP_PATH . '/Controllers/AdminVerificationController.php';
 
 $router = new Router();
 
@@ -121,6 +124,24 @@ $router->get('/payment/return',               ['PaymentController', 'returnPage'
 $router->get('/admin/featured-packages',                    ['AdminFeaturedPackageController', 'index']);
 $router->get('/admin/featured-packages/{id}/edit',          ['AdminFeaturedPackageController', 'edit']);
 $router->post('/admin/featured-packages/{id}/update',       ['AdminFeaturedPackageController', 'update']);
+
+// Admin — verifications
+$router->get('/admin/verifications',                        ['AdminVerificationController', 'index']);
+$router->get('/admin/verifications/{id}/document',          ['AdminVerificationController', 'streamDocument']);
+$router->get('/admin/verifications/{id}/selfie',            ['AdminVerificationController', 'streamSelfie']);
+$router->post('/admin/verifications/{id}/approve',          ['AdminVerificationController', 'approve']);
+$router->post('/admin/verifications/{id}/reject',           ['AdminVerificationController', 'reject']);
+
+// Verified Host — public landing
+$router->get('/get-verified', ['VerificationController', 'showPage']);
+
+// Verified Host — owner application
+$router->get('/owner/verify',   ['VerificationController', 'showApplyForm']);
+$router->post('/owner/verify',  ['VerificationController', 'submitApplication']);
+
+// Verified Host — payment callbacks
+$router->post('/payment/verify-callback', ['VerificationController', 'callback']);
+$router->get('/payment/verify-return',    ['VerificationController', 'returnPage']);
 
 // Public static pages
 $router->get('/about',   ['PublicController', 'about']);
