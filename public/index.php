@@ -99,6 +99,10 @@ $router->post('/owner/listings/{id}/images/upload',                   ['OwnerLis
 $router->post('/owner/listings/{listingId}/images/{imageId}/delete',  ['OwnerListingController', 'deleteImage']);
 $router->post('/owner/listings/{listingId}/images/{imageId}/primary', ['OwnerListingController', 'setPrimary']);
 
+// Public articles (fixed routes — must be before parameterised state/city)
+$router->get('/articles',          ['PublicController', 'articles']);
+$router->get('/articles/{slug}',   ['PublicController', 'articleDetail']);
+
 // Public state/city pages (parameterised — must be last)
 $router->get('/{stateSlug}',             ['PublicController', 'stateListings']);
 $router->get('/{stateSlug}/{citySlug}',  ['PublicController', 'cityListings']);

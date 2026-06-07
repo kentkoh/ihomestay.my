@@ -38,6 +38,38 @@ class PublicController {
         require APP_PATH . '/Views/layouts/main.php';
     }
 
+    public function articles(): void {
+        $perPage    = 9;
+        $page       = max(1, (int) ($_GET['page'] ?? 1));
+        $total      = Article::countPublished();
+        $totalPages = (int) ceil($total / $perPage);
+        $articles   = Article::published($perPage, ($page - 1) * $perPage);
+        $pageTitle  = 'Articles & Tips — ihomestay.my';
+        ob_start();
+        require APP_PATH . '/Views/public/articles.php';
+        $content = ob_get_clean();
+        require APP_PATH . '/Views/layouts/main.php';
+    }
+
+    public function articleDetail(string $slug): void {
+        $article = Article::findBySlug($slug);
+        if (!$article) {
+            http_response_code(404);
+            echo '<h1>404 — Article not found</h1>';
+            return;
+        }
+        $related   = array_filter(
+            Article::latestPublished(4),
+            fn($a) => (int) $a['id'] !== (int) $article['id']
+        );
+        $related   = array_slice(array_values($related), 0, 3);
+        $pageTitle = $article['title'] . ' — ihomestay.my';
+        ob_start();
+        require APP_PATH . '/Views/public/article.php';
+        $content = ob_get_clean();
+        require APP_PATH . '/Views/layouts/main.php';
+    }
+
     public function search(): void {
         $this->renderSearch();
     }
