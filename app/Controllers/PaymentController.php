@@ -38,10 +38,10 @@ class PaymentController {
             exit;
         }
 
-        $owner = Auth::user();
+        $owner = User::getFullProfile(Auth::id());
         if (($owner['verification_status'] ?? '') !== 'verified') {
             $_SESSION['flash']['warning'] = 'Featured listings are available to Verified Hosts only. Get verified first to unlock this feature.';
-            header('Location: /owner/profile');
+            header('Location: /get-verified');
             exit;
         }
 
@@ -73,9 +73,10 @@ class PaymentController {
             exit;
         }
 
-        if ((Auth::user()['verification_status'] ?? '') !== 'verified') {
+        $ownerCheck = User::getFullProfile(Auth::id());
+        if (($ownerCheck['verification_status'] ?? '') !== 'verified') {
             $_SESSION['flash']['warning'] = 'Featured listings are available to Verified Hosts only.';
-            header('Location: /owner/profile');
+            header('Location: /get-verified');
             exit;
         }
 

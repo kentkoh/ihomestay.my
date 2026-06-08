@@ -239,7 +239,7 @@ $statusColors = [
                                             <i class="bi bi-lightning-charge-fill me-1"></i>Feature This
                                         </a>
                                     <?php else: ?>
-                                        <a href="/owner/profile" title="Verified Hosts only — get verified to unlock"
+                                        <a href="/get-verified" title="Verified Hosts only — get verified to unlock"
                                            class="btn btn-sm" style="background:#f1f5f9;color:#94a3b8;border-radius:7px;font-size:.78rem;padding:.25rem .75rem;">
                                             <i class="bi bi-lock-fill me-1"></i>Feature This
                                         </a>
