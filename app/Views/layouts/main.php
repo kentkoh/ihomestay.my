@@ -19,7 +19,9 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
     <div class="container">
-        <a class="navbar-brand" href="/">ihomestay.my</a>
+        <a class="navbar-brand" href="/">
+            <img src="/assets/logo.png" alt="ihomestay.my" style="height:52px;width:auto;object-fit:contain;">
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
