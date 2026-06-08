@@ -9,7 +9,7 @@
 
 /* ── Hero ── */
 .hero {
-    background: url('/assets/hero.jpg') center center / cover no-repeat;
+    background: url('/assets/hero.png') center center / cover no-repeat;
     min-height: 92vh;
     display: flex;
     align-items: center;
