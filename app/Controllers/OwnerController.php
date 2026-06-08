@@ -11,9 +11,9 @@ class OwnerController {
         $featured  = count(array_filter($listings, fn($l) =>
             $l['is_featured'] && (!$l['featured_until'] || strtotime($l['featured_until']) > time())
         ));
-        $isPro        = $user['plan_type'] !== 'free';
-        $isVerified   = in_array($user['verification_status'] ?? '', ['verified']);
         $profile      = User::getFullProfile($user['id']);
+        $isPro        = ($profile['plan_type'] ?? 'free') !== 'free';
+        $isVerified   = ($profile['verification_status'] ?? '') === 'verified';
         $pageTitle    = 'My Dashboard';
 
         ob_start();

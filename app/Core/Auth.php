@@ -3,11 +3,12 @@
 class Auth {
     public static function login(array $user): void {
         session_regenerate_id(true);
-        $_SESSION['user_id']       = $user['id'];
-        $_SESSION['user_name']     = $user['name'];
-        $_SESSION['user_role']     = $user['role'];
-        $_SESSION['user_email']    = $user['email'];
-        $_SESSION['user_whatsapp'] = $user['whatsapp'] ?? '';
+        $_SESSION['user_id']              = $user['id'];
+        $_SESSION['user_name']            = $user['name'];
+        $_SESSION['user_role']            = $user['role'];
+        $_SESSION['user_email']           = $user['email'];
+        $_SESSION['user_whatsapp']        = $user['whatsapp'] ?? '';
+        $_SESSION['user_verification']    = $user['verification_status'] ?? 'none';
     }
 
     public static function refreshSession(array $data): void {

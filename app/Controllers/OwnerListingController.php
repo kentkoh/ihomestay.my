@@ -25,7 +25,8 @@ class OwnerListingController {
         $states      = State::all();
         $cities      = City::all();
         $facilities  = Facility::activeGrouped();
-        $isVerified  = ($user['verification_status'] ?? '') === 'verified';
+        $freshUser   = User::getFullProfile(Auth::id());
+        $isVerified  = ($freshUser['verification_status'] ?? '') === 'verified';
         $pageTitle   = 'Add New Listing';
         ob_start();
         require APP_PATH . '/Views/owner/listings/create.php';
@@ -95,7 +96,8 @@ class OwnerListingController {
         $facilities     = Facility::activeGrouped();
         $selectedFacIds = Listing::getFacilityIds((int) $id);
         $images         = Listing::getImages((int) $id);
-        $isVerified     = (Auth::user()['verification_status'] ?? '') === 'verified';
+        $freshUser      = User::getFullProfile(Auth::id());
+        $isVerified     = ($freshUser['verification_status'] ?? '') === 'verified';
         $pageTitle      = 'Edit Listing';
         ob_start();
         require APP_PATH . '/Views/owner/listings/edit.php';
