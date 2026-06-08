@@ -35,7 +35,7 @@ $statusColors = [
                     <i class="bi bi-person me-1"></i>Free Owner
                 </span>
             <?php endif; ?>
-            <?php if ($isPro || $total < 3): ?>
+            <?php if ($isVerified || $isPro || $total < 3): ?>
                 <a href="/owner/listings/create" class="btn btn-sm fw-semibold"
                    style="background:#e84c2b;color:#fff;border-radius:8px;">
                     <i class="bi bi-plus-lg me-1"></i>Add Listing
@@ -141,8 +141,21 @@ $statusColors = [
     </div>
     <?php endif; ?>
 
-    <!-- Free plan usage bar -->
-    <?php if (!$isPro): ?>
+    <!-- Listing slots bar -->
+    <?php if ($isVerified): ?>
+    <div class="card border-0 shadow-sm mb-4" style="border-radius:12px;">
+        <div class="card-body py-3 px-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="small fw-semibold" style="color:#0f172a;">
+                    <i class="bi bi-infinity me-1" style="color:#16a34a;"></i>Verified Host — Unlimited Listings
+                </span>
+                <span class="badge" style="background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;font-size:.75rem;">
+                    <?= $total ?> listing<?= $total !== 1 ? 's' : '' ?> active
+                </span>
+            </div>
+        </div>
+    </div>
+    <?php elseif (!$isPro): ?>
     <div class="card border-0 shadow-sm mb-4" style="border-radius:12px;">
         <div class="card-body py-3 px-4">
             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -255,6 +268,13 @@ $statusColors = [
                                    class="btn btn-sm btn-outline-secondary" style="border-radius:7px;font-size:.78rem;padding:.25rem .75rem;">
                                     <i class="bi bi-pencil me-1"></i>Edit
                                 </a>
+                                <?php if ($isVerified): ?>
+                                <a href="/owner/listings/<?= $l['id'] ?>/availability"
+                                   class="btn btn-sm btn-outline-secondary" style="border-radius:7px;font-size:.78rem;padding:.25rem .75rem;"
+                                   title="Manage Availability">
+                                    <i class="bi bi-calendar3"></i>
+                                </a>
+                                <?php endif; ?>
                                 <form method="POST" action="/owner/listings/<?= $l['id'] ?>/delete"
                                       onsubmit="return confirm('Delete this listing? This cannot be undone.');" class="m-0">
                                     <?= CSRF::field() ?>

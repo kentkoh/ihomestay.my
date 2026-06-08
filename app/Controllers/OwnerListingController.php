@@ -15,9 +15,11 @@ class OwnerListingController {
     public function create(): void {
         Auth::requireOwner();
 
-        $user = Auth::user();
-        if ($user['plan_type'] === 'free' && Listing::countByOwner(Auth::id()) >= 3) {
-            $_SESSION['flash']['danger'] = 'Free plan allows maximum 3 listings. Upgrade to add more.';
+        $user       = Auth::user();
+        $freshUser  = User::getFullProfile(Auth::id());
+        $isVerified = ($freshUser['verification_status'] ?? '') === 'verified';
+        if (!$isVerified && ($freshUser['plan_type'] ?? 'free') === 'free' && Listing::countByOwner(Auth::id()) >= 3) {
+            $_SESSION['flash']['danger'] = 'Free plan allows maximum 3 listings. Get verified to unlock unlimited listings.';
             header('Location: /owner/listings');
             exit;
         }
@@ -25,8 +27,6 @@ class OwnerListingController {
         $states      = State::all();
         $cities      = City::all();
         $facilities  = Facility::activeGrouped();
-        $freshUser   = User::getFullProfile(Auth::id());
-        $isVerified  = ($freshUser['verification_status'] ?? '') === 'verified';
         $pageTitle   = 'Add New Listing';
         ob_start();
         require APP_PATH . '/Views/owner/listings/create.php';
