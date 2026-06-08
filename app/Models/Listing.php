@@ -454,6 +454,22 @@ class Listing {
             $where .= ' AND l.max_guests >= :guests';
             $params[':guests'] = (int) $filters['guests'];
         }
+        if (!empty($filters['has_pool'])) {
+            $where .= " AND EXISTS (
+                SELECT 1 FROM listing_facilities lf
+                JOIN facilities f ON lf.facility_id = f.id
+                WHERE lf.listing_id = l.id
+                  AND f.name IN ('Swimming Pool','Private Pool')
+            )";
+        }
+        if (!empty($filters['has_bbq'])) {
+            $where .= " AND EXISTS (
+                SELECT 1 FROM listing_facilities lf
+                JOIN facilities f ON lf.facility_id = f.id
+                WHERE lf.listing_id = l.id
+                  AND f.name = 'BBQ Pit / Grill'
+            )";
+        }
 
         return [$where, $params];
     }

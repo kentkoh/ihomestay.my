@@ -99,8 +99,10 @@ class PublicController {
         if (!isset($filters['city_id']) && !empty($_GET['city_id'])) {
             $filters['city_id'] = (int) $_GET['city_id'];
         }
-        if (!empty($_GET['q']))      $filters['q']      = trim($_GET['q']);
-        if (!empty($_GET['guests'])) $filters['guests'] = (int) $_GET['guests'];
+        if (!empty($_GET['q']))        $filters['q']        = trim($_GET['q']);
+        if (!empty($_GET['guests']))   $filters['guests']   = (int) $_GET['guests'];
+        if (!empty($_GET['has_pool'])) $filters['has_pool'] = 1;
+        if (!empty($_GET['has_bbq']))  $filters['has_bbq']  = 1;
 
         $page       = max(1, (int) ($_GET['page'] ?? 1));
         $perPage    = 12;

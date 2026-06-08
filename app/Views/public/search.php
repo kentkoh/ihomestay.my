@@ -23,10 +23,16 @@ function searchPageUrl(int $page, array $filters): string {
 </style>
 
 <!-- Filter Bar -->
+<style>
+.fac-toggle { display:flex; align-items:center; gap:4px; font-size:.78rem; padding:4px 10px; border-radius:6px; white-space:nowrap; }
+.btn-check:checked + .fac-toggle { background:#e84c2b; border-color:#e84c2b; color:#fff; }
+</style>
 <div class="search-filter-bar py-2 shadow-sm">
     <div class="container">
         <form method="GET" action="/search" class="row g-2 align-items-center">
-            <div class="col-12 col-sm-6 col-md-3">
+
+            <!-- Row 1: State + City side by side (always) -->
+            <div class="col-6 col-md-3">
                 <select name="state_id" id="filterState" class="form-select form-select-sm">
                     <option value="">All States</option>
                     <?php foreach ($states as $s): ?>
@@ -36,11 +42,13 @@ function searchPageUrl(int $page, array $filters): string {
                     <?php endforeach; ?>
                 </select>
             </div>
-            <div class="col-12 col-sm-6 col-md-3">
+            <div class="col-6 col-md-3">
                 <select name="city_id" id="filterCity" class="form-select form-select-sm">
                     <option value="">All Cities</option>
                 </select>
             </div>
+
+            <!-- Row 2: Search input -->
             <div class="col-12 col-md-4">
                 <div class="input-group input-group-sm">
                     <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
@@ -49,14 +57,37 @@ function searchPageUrl(int $page, array $filters): string {
                            value="<?= htmlspecialchars($filters['q'] ?? '') ?>">
                 </div>
             </div>
-            <div class="col-6 col-md-1">
-                <button type="submit" class="btn btn-primary btn-sm w-100">Search</button>
+
+            <!-- Row 3: Facility toggles + Search + Clear -->
+            <div class="col-12 col-md-2 d-flex gap-2 align-items-center flex-wrap">
+
+                <input type="checkbox" class="btn-check" id="has_pool" name="has_pool" value="1" autocomplete="off"
+                       <?= !empty($filters['has_pool']) ? 'checked' : '' ?>>
+                <label class="btn btn-outline-secondary btn-sm fac-toggle" for="has_pool"
+                       title="Swimming Pool">
+                    <i class="bi bi-water"></i>
+                    <span class="d-none d-sm-inline">Pool</span>
+                </label>
+
+                <input type="checkbox" class="btn-check" id="has_bbq" name="has_bbq" value="1" autocomplete="off"
+                       <?= !empty($filters['has_bbq']) ? 'checked' : '' ?>>
+                <label class="btn btn-outline-secondary btn-sm fac-toggle" for="has_bbq"
+                       title="BBQ Pit / Grill">
+                    <i class="bi bi-fire"></i>
+                    <span class="d-none d-sm-inline">BBQ</span>
+                </label>
+
+                <button type="submit" class="btn btn-primary btn-sm px-3">
+                    <i class="bi bi-search d-md-none"></i>
+                    <span class="d-none d-md-inline">Search</span>
+                </button>
+
+                <?php if (array_filter($filters)): ?>
+                <a href="/search" class="btn btn-outline-secondary btn-sm">Clear</a>
+                <?php endif; ?>
+
             </div>
-            <?php if (array_filter($filters)): ?>
-            <div class="col-6 col-md-1">
-                <a href="/search" class="btn btn-outline-secondary btn-sm w-100">Clear</a>
-            </div>
-            <?php endif; ?>
+
         </form>
     </div>
 </div>
