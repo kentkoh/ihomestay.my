@@ -39,8 +39,8 @@
                     <?php endif; ?>
                     <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
                 <?php else: ?>
-                    <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
-                    <li class="nav-item"><a class="nav-link btn btn-primary text-white px-3 ms-2" href="/register">List Your Homestay</a></li>
+                    <li class="nav-item"><a class="btn btn-outline-secondary px-3 me-1" href="/login">Login</a></li>
+                    <li class="nav-item"><a class="btn btn-primary text-white px-3" href="/register">List Your Homestay</a></li>
                 <?php endif; ?>
             </ul>
         </div>
