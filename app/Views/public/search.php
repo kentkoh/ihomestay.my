@@ -13,6 +13,7 @@ function searchPageUrl(int $page, array $filters): string {
 .listing-thumb-ph { height:210px; background:#f1f5f9; display:flex; align-items:center; justify-content:center; color:#94a3b8; }
 .badge-featured { position:absolute; top:10px; left:10px; background:#e84c2b; color:#fff; font-size:.7rem; padding:3px 9px; border-radius:4px; font-weight:700; letter-spacing:.03em; }
 .featured-ribbon { position:absolute; top:18px; right:-30px; background:#e84c2b; color:#fff; font-size:.62rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; padding:5px 44px; transform:rotate(45deg); z-index:3; box-shadow:0 2px 8px rgba(0,0,0,.25); pointer-events:none; }
+.verified-badge { position:absolute; bottom:8px; left:8px; background:#16a34a; color:#fff; border-radius:99px; padding:3px 9px; font-size:.62rem; font-weight:700; display:flex; align-items:center; gap:3px; z-index:2; box-shadow:0 1px 6px rgba(0,0,0,.25); }
 .price-tag { color:#e84c2b; font-weight:700; font-size:1.05rem; }
 .wa-btn { background:#25D366; color:#fff; border:none; position:relative; z-index:2; }
 .wa-btn:hover { background:#1da851; color:#fff; }
@@ -109,6 +110,9 @@ function searchPageUrl(int $page, array $filters): string {
                         <?php endif; ?>
                         <?php if ($listing['is_featured']): ?>
                             <span class="badge-featured">Featured</span>
+                        <?php endif; ?>
+                        <?php if (!empty($listing['owner_is_verified'])): ?>
+                            <span class="verified-badge"><i class="bi bi-patch-check-fill"></i> Verified Host</span>
                         <?php endif; ?>
                     </div>
                     <div class="card-body d-flex flex-column pb-3">

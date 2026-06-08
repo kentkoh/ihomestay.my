@@ -87,6 +87,7 @@
     background: #fff;
 }
 .featured-ribbon { position:absolute; top:18px; right:-30px; background:#e84c2b; color:#fff; font-size:.62rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; padding:5px 44px; transform:rotate(45deg); z-index:3; box-shadow:0 2px 8px rgba(0,0,0,.25); pointer-events:none; }
+.verified-badge { position:absolute; bottom:8px; left:8px; background:#16a34a; color:#fff; border-radius:99px; padding:3px 9px; font-size:.62rem; font-weight:700; display:flex; align-items:center; gap:3px; z-index:2; box-shadow:0 1px 6px rgba(0,0,0,.25); }
 .listing-card:hover { transform: translateY(-4px); box-shadow: 0 8px 28px rgba(0,0,0,.12); }
 .listing-thumb { height: 200px; object-fit: cover; width: 100%; background: #e2e8f0; }
 .listing-thumb-placeholder {
@@ -250,12 +251,17 @@
                         <?php if (!empty($l['is_featured_active'])): ?>
                             <div class="featured-ribbon">Featured</div>
                         <?php endif; ?>
-                        <?php if ($l['primary_image']): ?>
-                            <img src="/uploads/listings/<?= $l['id'] ?>/<?= htmlspecialchars($l['primary_image']) ?>"
-                                 class="listing-thumb" alt="<?= htmlspecialchars($l['title']) ?>">
-                        <?php else: ?>
-                            <div class="listing-thumb-placeholder"><i class="bi bi-house"></i></div>
-                        <?php endif; ?>
+                        <div class="position-relative">
+                            <?php if ($l['primary_image']): ?>
+                                <img src="/uploads/listings/<?= $l['id'] ?>/<?= htmlspecialchars($l['primary_image']) ?>"
+                                     class="listing-thumb" alt="<?= htmlspecialchars($l['title']) ?>">
+                            <?php else: ?>
+                                <div class="listing-thumb-placeholder"><i class="bi bi-house"></i></div>
+                            <?php endif; ?>
+                            <?php if (!empty($l['owner_is_verified'])): ?>
+                                <span class="verified-badge"><i class="bi bi-patch-check-fill"></i> Verified Host</span>
+                            <?php endif; ?>
+                        </div>
                         <div class="p-3">
                             <div class="text-muted small mb-1">
                                 <i class="bi bi-geo-alt-fill me-1" style="color:#e84c2b;"></i>
