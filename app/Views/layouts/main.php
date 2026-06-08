@@ -35,6 +35,7 @@ $_title       = htmlspecialchars(($pageTitle ?? 'ihomestay.my') . ' | ihomestay.
     <meta name="twitter:title"       content="<?= $_title ?>">
     <meta name="twitter:description" content="<?= htmlspecialchars($metaDesc) ?>">
     <meta name="twitter:image"       content="<?= htmlspecialchars($metaImage) ?>">
+    <meta name="google-site-verification" content="DKrtG5rnPW-dc0AtlxvxxJmQGJ_-W_7cGiCHt93yBlk">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
