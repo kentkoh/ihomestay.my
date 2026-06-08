@@ -612,7 +612,7 @@ function setMain(thumbEl, src) {
 $_ldBase   = rtrim(env('APP_URL', 'https://ihomestay.my'), '/');
 $_ldImages = [];
 foreach ($images as $_img) {
-    $_ldImages[] = $_ldBase . '/uploads/' . $_img['filename'];
+    $_ldImages[] = $_ldBase . '/uploads/listings/' . $listing['id'] . '/' . $_img['filename'];
 }
 $_ldPrice = 'RM ' . number_format($listing['price_per_night'], 0) . '/night';
 $_ldAddr  = implode(', ', array_filter([

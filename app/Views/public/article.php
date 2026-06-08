@@ -108,7 +108,7 @@
 <?php endif; ?>
 <?php
 $_ldBase    = rtrim(env('APP_URL', 'https://ihomestay.my'), '/');
-$_ldImage   = !empty($article['cover_image']) ? $_ldBase . '/uploads/' . $article['cover_image'] : null;
+$_ldImage   = !empty($article['cover_image']) ? $_ldBase . '/uploads/articles/' . $article['cover_image'] : null;
 $_ldDate    = substr($article['published_at'] ?? date('Y-m-d'), 0, 10);
 $_ldExcerpt = $article['excerpt'] ?? mb_substr(strip_tags($article['body'] ?? ''), 0, 200);
 ?>

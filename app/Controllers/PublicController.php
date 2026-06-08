@@ -45,7 +45,7 @@ class PublicController {
             if ($img['is_primary']) { $primaryImg = $img['filename']; break; }
         }
         if (!$primaryImg && !empty($images)) $primaryImg = $images[0]['filename'];
-        $metaImage    = $primaryImg ? (rtrim(env('APP_URL', 'https://ihomestay.my'), '/') . '/uploads/' . $primaryImg) : null;
+        $metaImage    = $primaryImg ? (rtrim(env('APP_URL', 'https://ihomestay.my'), '/') . '/uploads/listings/' . $listing['id'] . '/' . $primaryImg) : null;
         $canonicalUrl = rtrim(env('APP_URL', 'https://ihomestay.my'), '/') . '/listing/' . $listing['slug'];
 
         ob_start();
@@ -84,7 +84,7 @@ class PublicController {
         $rawExcerpt = $article['excerpt'] ?? strip_tags($article['body'] ?? '');
         $metaDesc   = mb_strlen($rawExcerpt) > 155 ? mb_substr($rawExcerpt, 0, 152) . '…' : $rawExcerpt;
         $metaImage  = !empty($article['cover_image'])
-            ? rtrim(env('APP_URL', 'https://ihomestay.my'), '/') . '/uploads/' . $article['cover_image']
+            ? rtrim(env('APP_URL', 'https://ihomestay.my'), '/') . '/uploads/articles/' . $article['cover_image']
             : null;
         $canonicalUrl = rtrim(env('APP_URL', 'https://ihomestay.my'), '/') . '/articles/' . $article['slug'];
 

@@ -4,7 +4,7 @@ $_noindex = (bool) preg_match('#^/(owner|admin|auth|payment|logout)#', $_path);
 $_base    = rtrim(env('APP_URL', 'https://ihomestay.my'), '/');
 $canonicalUrl = $canonicalUrl ?? ($_base . strtok($_path, '?'));
 $metaDesc     = $metaDesc ?? 'Malaysia\'s homestay directory — browse and book direct from owners. No platform fees, no middleman. Find family homestays across all states in Malaysia.';
-$metaImage    = $metaImage ?? ($_base . '/assets/og-image.jpg');
+$metaImage    = $metaImage ?? ($_base . '/assets/og-image.webp');
 $_title       = htmlspecialchars(($pageTitle ?? 'ihomestay.my') . ' | ihomestay.my');
 ?>
 <!DOCTYPE html>
