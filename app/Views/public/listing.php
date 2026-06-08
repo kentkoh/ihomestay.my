@@ -266,15 +266,6 @@ $promo      = (!empty($listing['active_promo']) && $isVerified) ? json_decode($l
                 </div>
                 <?php endif; ?>
 
-                <!-- Check Availability -->
-                <?php if ($isVerified && !empty($blockedDates)): ?>
-                <button type="button" class="btn btn-outline-secondary w-100 mb-3"
-                        data-bs-toggle="modal" data-bs-target="#availModal"
-                        style="border-radius:8px;">
-                    <i class="bi bi-calendar3 me-2"></i>Check Availability
-                </button>
-                <?php endif; ?>
-
                 <!-- WhatsApp button -->
                 <?php if ($waNumber): ?>
                     <?php if ($isVerified): ?>
@@ -288,6 +279,15 @@ $promo      = (!empty($listing['active_promo']) && $isVerified) ? json_decode($l
                             <i class="bi bi-whatsapp me-2"></i>Contact via WhatsApp
                         </button>
                     <?php endif; ?>
+                <?php endif; ?>
+
+                <!-- Check Availability -->
+                <?php if ($isVerified): ?>
+                <button type="button" class="btn btn-outline-secondary w-100 mb-3"
+                        data-bs-toggle="modal" data-bs-target="#availModal"
+                        style="border-radius:8px;">
+                    <i class="bi bi-calendar3 me-2"></i>Check Availability
+                </button>
                 <?php endif; ?>
 
                 <!-- Verification status note -->
@@ -437,12 +437,10 @@ if ($isVerified) {
             <small>/night</small>
         </div>
         <div class="s-spacer"></div>
-        <?php if (!empty($blockedDates)): ?>
         <button type="button" class="s-map" data-bs-toggle="modal" data-bs-target="#availModal"
                 style="background:none;border:1px solid rgba(255,255,255,.2);cursor:pointer;">
             <i class="bi bi-calendar3"></i><span class="d-none d-sm-inline ms-1">Availability</span>
         </button>
-        <?php endif; ?>
         <?php if ($hasMap): ?>
         <a href="#map-section" class="s-map">
             <i class="bi bi-map"></i><span class="d-none d-sm-inline ms-1">Map</span>
