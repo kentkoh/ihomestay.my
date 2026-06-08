@@ -23,6 +23,7 @@ require_once APP_PATH . '/Models/Article.php';
 require_once APP_PATH . '/Models/FeaturedPackage.php';
 require_once APP_PATH . '/Models/Payment.php';
 require_once APP_PATH . '/Models/VerificationRequest.php';
+require_once APP_PATH . '/Models/ListingPromotion.php';
 
 // Controllers
 require_once APP_PATH . '/Controllers/AuthController.php';
@@ -38,6 +39,7 @@ require_once APP_PATH . '/Controllers/PaymentController.php';
 require_once APP_PATH . '/Controllers/AdminFeaturedPackageController.php';
 require_once APP_PATH . '/Controllers/VerificationController.php';
 require_once APP_PATH . '/Controllers/AdminVerificationController.php';
+require_once APP_PATH . '/Controllers/OwnerPromotionController.php';
 
 $router = new Router();
 
@@ -131,6 +133,12 @@ $router->get('/admin/verifications/{id}/document',          ['AdminVerificationC
 $router->get('/admin/verifications/{id}/selfie',            ['AdminVerificationController', 'streamSelfie']);
 $router->post('/admin/verifications/{id}/approve',          ['AdminVerificationController', 'approve']);
 $router->post('/admin/verifications/{id}/reject',           ['AdminVerificationController', 'reject']);
+
+// Owner — Promotions
+$router->get('/owner/listings/{id}/promotions',                        ['OwnerPromotionController', 'index']);
+$router->post('/owner/listings/{id}/promotions',                       ['OwnerPromotionController', 'store']);
+$router->post('/owner/listings/{id}/promotions/{promoId}/delete',      ['OwnerPromotionController', 'destroy']);
+$router->post('/owner/listings/{id}/promotions/{promoId}/toggle',      ['OwnerPromotionController', 'toggle']);
 
 // Verified Host — public landing
 $router->get('/get-verified', ['VerificationController', 'showPage']);

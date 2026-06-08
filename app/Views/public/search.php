@@ -14,6 +14,7 @@ function searchPageUrl(int $page, array $filters): string {
 .badge-featured { position:absolute; top:10px; left:10px; background:#e84c2b; color:#fff; font-size:.7rem; padding:3px 9px; border-radius:4px; font-weight:700; letter-spacing:.03em; }
 .featured-ribbon { position:absolute; top:18px; right:-30px; background:#e84c2b; color:#fff; font-size:.62rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; padding:5px 44px; transform:rotate(45deg); z-index:3; box-shadow:0 2px 8px rgba(0,0,0,.25); pointer-events:none; }
 .verified-badge { position:absolute; bottom:8px; left:8px; background:#16a34a; color:#fff; border-radius:99px; padding:3px 9px; font-size:.62rem; font-weight:700; display:flex; align-items:center; gap:3px; z-index:2; box-shadow:0 1px 6px rgba(0,0,0,.25); }
+.promo-badge { position:absolute; top:8px; left:8px; background:#f59e0b; color:#fff; border-radius:6px; padding:3px 8px; font-size:.62rem; font-weight:800; z-index:2; box-shadow:0 1px 6px rgba(0,0,0,.25); letter-spacing:.04em; }
 .price-tag { color:#e84c2b; font-weight:700; font-size:1.05rem; }
 .wa-btn { background:#25D366; color:#fff; border:none; position:relative; z-index:2; }
 .wa-btn:hover { background:#1da851; color:#fff; }
@@ -110,6 +111,15 @@ function searchPageUrl(int $page, array $filters): string {
                         <?php endif; ?>
                         <?php if ($listing['is_featured']): ?>
                             <span class="badge-featured">Featured</span>
+                        <?php endif; ?>
+                        <?php
+                        $promo = !empty($listing['active_promo']) ? json_decode($listing['active_promo'], true) : null;
+                        if ($promo && !empty($listing['owner_is_verified'])):
+                            $promoText = $promo['type'] === 'percent'
+                                ? (int)$promo['value'] . '% OFF'
+                                : 'RM' . (int)$promo['value'] . ' OFF';
+                        ?>
+                            <span class="promo-badge"><i class="bi bi-tag-fill me-1"></i><?= $promoText ?></span>
                         <?php endif; ?>
                         <?php if (!empty($listing['owner_is_verified'])): ?>
                             <span class="verified-badge"><i class="bi bi-patch-check-fill"></i> Verified Host</span>

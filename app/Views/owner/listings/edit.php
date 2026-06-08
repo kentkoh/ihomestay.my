@@ -290,10 +290,14 @@ foreach ($cities as $city) {
             </div>
         </div>
 
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 flex-wrap">
             <button type="submit" class="btn px-4" style="background:#e84c2b;color:#fff;">
                 <?= $listing['status'] === 'rejected' ? 'Update & Resubmit for Review' : 'Save Changes' ?>
             </button>
+            <a href="/owner/listings/<?= (int)$listing['id'] ?>/promotions"
+               class="btn btn-outline-warning fw-semibold">
+                <i class="bi bi-tag me-1"></i>Manage Promotions
+            </a>
             <a href="/owner/listings" class="btn btn-outline-secondary">Cancel</a>
         </div>
     </form>

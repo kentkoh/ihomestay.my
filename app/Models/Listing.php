@@ -140,7 +140,11 @@ class Listing {
                     (SELECT filename FROM listing_images WHERE listing_id=l.id AND is_primary=1 LIMIT 1) as primary_image,
                     (l.is_featured = 1 AND (l.featured_until IS NULL OR l.featured_until > NOW())) as is_featured_active,
                     (u.verification_status = 'verified' OR u.role = 'admin') as owner_is_verified,
-                    u.whatsapp as owner_whatsapp
+                    u.whatsapp as owner_whatsapp,
+                    (SELECT JSON_OBJECT('label',label,'type',discount_type,'value',discount_value)
+                     FROM listing_promotions WHERE listing_id=l.id AND is_active=1
+                       AND start_date<=CURDATE() AND end_date>=CURDATE()
+                     ORDER BY id DESC LIMIT 1) as active_promo
              FROM listings l
              JOIN states s ON l.state_id = s.id
              JOIN cities c ON l.city_id  = c.id
@@ -306,7 +310,11 @@ class Listing {
                     op.company_name as owner_company, op.about as owner_bio, op.profile_photo as owner_photo,
                     op.facebook_url as owner_facebook, op.instagram_url as owner_instagram, op.website_url as owner_website,
                     op.verified_at,
-                    (l.is_featured = 1 AND (l.featured_until IS NULL OR l.featured_until > NOW())) as is_featured_active
+                    (l.is_featured = 1 AND (l.featured_until IS NULL OR l.featured_until > NOW())) as is_featured_active,
+                    (SELECT JSON_OBJECT('label',label,'type',discount_type,'value',discount_value)
+                     FROM listing_promotions WHERE listing_id=l.id AND is_active=1
+                       AND start_date<=CURDATE() AND end_date>=CURDATE()
+                     ORDER BY id DESC LIMIT 1) as active_promo
              FROM listings l
              JOIN states s  ON l.state_id  = s.id
              JOIN cities c  ON l.city_id   = c.id
@@ -344,7 +352,11 @@ class Listing {
                        (SELECT filename FROM listing_images WHERE listing_id=l.id AND is_primary=1 LIMIT 1) as primary_image,
                        (l.is_featured = 1 AND (l.featured_until IS NULL OR l.featured_until > NOW())) as is_featured_active,
                        (u.verification_status = 'verified' OR u.role = 'admin') as owner_is_verified,
-                       u.whatsapp as owner_whatsapp
+                       u.whatsapp as owner_whatsapp,
+                       (SELECT JSON_OBJECT('label',label,'type',discount_type,'value',discount_value)
+                        FROM listing_promotions WHERE listing_id=l.id AND is_active=1
+                          AND start_date<=CURDATE() AND end_date>=CURDATE()
+                        ORDER BY id DESC LIMIT 1) as active_promo
                 FROM listings l
                 JOIN states s ON l.state_id = s.id
                 JOIN cities c ON l.city_id  = c.id
