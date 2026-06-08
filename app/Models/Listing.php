@@ -6,9 +6,9 @@ class Listing {
         $stmt = $pdo->prepare(
             "INSERT INTO listings
              (owner_id, title, slug, description, address, state_id, city_id, postcode,
-              latitude, longitude, price_per_night, min_nights, max_guests, bedrooms,
-              bathrooms, whatsapp, status)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+              latitude, longitude, price_per_night, price_2nights, price_3nights,
+              min_nights, max_guests, bedrooms, bathrooms, whatsapp, status)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
         );
         $stmt->execute([
             $data['owner_id'],
@@ -22,6 +22,8 @@ class Listing {
             $data['latitude']  ?: null,
             $data['longitude'] ?: null,
             $data['price_per_night'],
+            $data['price_2nights'] ?: null,
+            $data['price_3nights'] ?: null,
             $data['min_nights'] ?? 1,
             $data['max_guests'] ?? 1,
             $data['bedrooms']   ?? 1,
@@ -39,9 +41,9 @@ class Listing {
         $stmt = Database::get()->prepare(
             "UPDATE listings SET
              title=?, description=?, address=?, state_id=?, city_id=?, postcode=?,
-             latitude=?, longitude=?, price_per_night=?, min_nights=?, max_guests=?,
-             bedrooms=?, bathrooms=?, whatsapp=?, status=?, rejection_reason=?,
-             updated_at=NOW()
+             latitude=?, longitude=?, price_per_night=?, price_2nights=?, price_3nights=?,
+             min_nights=?, max_guests=?, bedrooms=?, bathrooms=?,
+             whatsapp=?, status=?, rejection_reason=?, updated_at=NOW()
              WHERE id=?"
         );
         $stmt->execute([
@@ -54,6 +56,8 @@ class Listing {
             $data['latitude']  ?: null,
             $data['longitude'] ?: null,
             $data['price_per_night'],
+            $data['price_2nights'] ?: null,
+            $data['price_3nights'] ?: null,
             $data['min_nights'] ?? 1,
             $data['max_guests'] ?? 1,
             $data['bedrooms']   ?? 1,

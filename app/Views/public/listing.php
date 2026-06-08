@@ -198,11 +198,47 @@ $hasMap     = !empty($listing['latitude']) && !empty($listing['longitude']);
                     <span class="price-big">RM <?= number_format((float)$listing['price_per_night'], 0) ?></span>
                     <span class="text-muted"> / night</span>
                 </div>
-                <div class="small text-muted mb-4">
+                <div class="small text-muted mb-3">
                     Minimum <?= (int)$listing['min_nights'] ?> night<?= $listing['min_nights'] != 1 ? 's' : '' ?>
                     &nbsp;&middot;&nbsp;
                     Up to <?= (int)$listing['max_guests'] ?> guests
                 </div>
+
+                <?php
+                $p1 = (float) $listing['price_per_night'];
+                $p2 = !empty($listing['price_2nights']) ? (float) $listing['price_2nights'] : null;
+                $p3 = !empty($listing['price_3nights']) ? (float) $listing['price_3nights'] : null;
+                if ($isVerified && ($p2 || $p3)):
+                ?>
+                <div class="mb-4 rounded-3 overflow-hidden" style="border:1px solid #e2e8f0;">
+                    <div class="px-3 py-2" style="background:#f8fafc;font-size:.75rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;">
+                        Long-Stay Rates
+                    </div>
+                    <table class="table table-sm mb-0" style="font-size:.85rem;">
+                        <tbody>
+                            <tr>
+                                <td class="ps-3 text-muted">1 night</td>
+                                <td class="fw-semibold">RM <?= number_format($p1, 0) ?>/night</td>
+                                <td></td>
+                            </tr>
+                            <?php if ($p2): ?>
+                            <tr>
+                                <td class="ps-3 text-muted">2 nights</td>
+                                <td class="fw-semibold">RM <?= number_format($p2, 0) ?>/night</td>
+                                <td><span class="badge" style="background:#d1fae5;color:#065f46;font-size:.7rem;">Save <?= round((1 - $p2/$p1)*100) ?>%</span></td>
+                            </tr>
+                            <?php endif; ?>
+                            <?php if ($p3): ?>
+                            <tr>
+                                <td class="ps-3 text-muted">3+ nights</td>
+                                <td class="fw-semibold">RM <?= number_format($p3, 0) ?>/night</td>
+                                <td><span class="badge" style="background:#d1fae5;color:#065f46;font-size:.7rem;">Save <?= round((1 - $p3/$p1)*100) ?>%</span></td>
+                            </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <?php endif; ?>
 
                 <!-- WhatsApp button -->
                 <?php if ($waNumber): ?>

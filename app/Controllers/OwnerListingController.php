@@ -22,10 +22,11 @@ class OwnerListingController {
             exit;
         }
 
-        $states    = State::all();
-        $cities    = City::all();
-        $facilities = Facility::activeGrouped();
-        $pageTitle = 'Add New Listing';
+        $states      = State::all();
+        $cities      = City::all();
+        $facilities  = Facility::activeGrouped();
+        $isVerified  = ($user['verification_status'] ?? '') === 'verified';
+        $pageTitle   = 'Add New Listing';
         ob_start();
         require APP_PATH . '/Views/owner/listings/create.php';
         $content = ob_get_clean();
@@ -62,6 +63,8 @@ class OwnerListingController {
             'latitude'        => $_POST['latitude'] !== '' ? $_POST['latitude'] : null,
             'longitude'       => $_POST['longitude'] !== '' ? $_POST['longitude'] : null,
             'price_per_night' => (float) $_POST['price_per_night'],
+            'price_2nights'   => $_POST['price_2nights'] !== '' ? (float) $_POST['price_2nights'] : null,
+            'price_3nights'   => $_POST['price_3nights'] !== '' ? (float) $_POST['price_3nights'] : null,
             'min_nights'      => max(1, (int) ($_POST['min_nights'] ?? 1)),
             'max_guests'      => max(1, (int) ($_POST['max_guests'] ?? 1)),
             'bedrooms'        => max(0, (int) ($_POST['bedrooms'] ?? 1)),
@@ -92,6 +95,7 @@ class OwnerListingController {
         $facilities     = Facility::activeGrouped();
         $selectedFacIds = Listing::getFacilityIds((int) $id);
         $images         = Listing::getImages((int) $id);
+        $isVerified     = (Auth::user()['verification_status'] ?? '') === 'verified';
         $pageTitle      = 'Edit Listing';
         ob_start();
         require APP_PATH . '/Views/owner/listings/edit.php';
@@ -123,6 +127,8 @@ class OwnerListingController {
             'latitude'        => $_POST['latitude'] !== '' ? $_POST['latitude'] : null,
             'longitude'       => $_POST['longitude'] !== '' ? $_POST['longitude'] : null,
             'price_per_night' => (float) $_POST['price_per_night'],
+            'price_2nights'   => $_POST['price_2nights'] !== '' ? (float) $_POST['price_2nights'] : null,
+            'price_3nights'   => $_POST['price_3nights'] !== '' ? (float) $_POST['price_3nights'] : null,
             'min_nights'      => max(1, (int) ($_POST['min_nights'] ?? 1)),
             'max_guests'      => max(1, (int) ($_POST['max_guests'] ?? 1)),
             'bedrooms'        => max(0, (int) ($_POST['bedrooms'] ?? 1)),

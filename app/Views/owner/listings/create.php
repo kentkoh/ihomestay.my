@@ -144,6 +144,48 @@ foreach ($cities as $city) {
             </div>
         </div>
 
+        <!-- Long-Stay Pricing -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white d-flex align-items-center justify-content-between">
+                <span class="fw-semibold">Long-Stay Pricing <span class="text-muted fw-normal" style="font-size:.85rem;">(optional)</span></span>
+                <span class="badge px-2 py-1" style="background:#fef3c7;color:#92400e;font-size:.72rem;">
+                    <i class="bi bi-patch-check me-1"></i>Shown publicly for Verified Hosts only
+                </span>
+            </div>
+            <div class="card-body p-4">
+                <p class="text-muted small mb-3">Set discounted rates for longer stays — save now, they go live automatically once you're a Verified Host.</p>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">2-Night Rate (RM/night)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">RM</span>
+                            <input type="number" name="price_2nights" class="form-control"
+                                   value="<?= htmlspecialchars($old['price_2nights'] ?? '') ?>"
+                                   min="1" step="0.01" placeholder="e.g. 130">
+                        </div>
+                        <div class="form-text">Rate per night when guest stays 2 nights.</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">3-Night Rate (RM/night)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">RM</span>
+                            <input type="number" name="price_3nights" class="form-control"
+                                   value="<?= htmlspecialchars($old['price_3nights'] ?? '') ?>"
+                                   min="1" step="0.01" placeholder="e.g. 110">
+                        </div>
+                        <div class="form-text">Rate per night when guest stays 3+ nights.</div>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <div class="p-3 rounded-3 w-100" style="background:#f8fafc;border:1px solid #e2e8f0;">
+                            <div class="small text-muted mb-1">Example savings shown to guests</div>
+                            <div class="small"><span class="fw-semibold">2 nights:</span> <span id="save2">—</span></div>
+                            <div class="small"><span class="fw-semibold">3 nights:</span> <span id="save3">—</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Contact -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white fw-semibold">Contact</div>
@@ -221,6 +263,28 @@ foreach ($cities as $city) {
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+// Savings calculator for tiered pricing
+(function () {
+    const baseInput = document.querySelector('[name="price_per_night"]');
+    const p2Input   = document.querySelector('[name="price_2nights"]');
+    const p3Input   = document.querySelector('[name="price_3nights"]');
+    const save2El   = document.getElementById('save2');
+    const save3El   = document.getElementById('save3');
+    function updateSavings() {
+        const base = parseFloat(baseInput.value) || 0;
+        const p2   = parseFloat(p2Input.value)   || 0;
+        const p3   = parseFloat(p3Input.value)   || 0;
+        save2El.textContent = (base > 0 && p2 > 0 && p2 < base)
+            ? 'RM' + p2.toFixed(0) + '/night (Save ' + Math.round((1 - p2/base)*100) + '%)'
+            : '—';
+        save3El.textContent = (base > 0 && p3 > 0 && p3 < base)
+            ? 'RM' + p3.toFixed(0) + '/night (Save ' + Math.round((1 - p3/base)*100) + '%)'
+            : '—';
+    }
+    [baseInput, p2Input, p3Input].forEach(el => el.addEventListener('input', updateSavings));
+    updateSavings();
+})();
+
 const citiesByState = <?= json_encode($citiesByState) ?>;
 const citySelect    = document.getElementById('city_id');
 const stateSelect   = document.getElementById('state_id');
