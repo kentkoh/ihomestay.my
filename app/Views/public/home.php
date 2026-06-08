@@ -9,7 +9,7 @@
 
 /* ── Hero ── */
 .hero {
-    background: linear-gradient(135deg, #0f1923 0%, #1a2e22 60%, #0f1923 100%);
+    background: url('/assets/hero.jpg') center center / cover no-repeat;
     min-height: 92vh;
     display: flex;
     align-items: center;
@@ -19,8 +19,16 @@
 .hero::before {
     content: '';
     position: absolute; inset: 0;
-    background: radial-gradient(ellipse 80% 60% at 60% 50%, rgba(232,76,43,.12) 0%, transparent 70%);
+    background: linear-gradient(to right,
+        rgba(6,12,20,0.82) 0%,
+        rgba(6,12,20,0.68) 45%,
+        rgba(6,12,20,0.38) 100%);
     pointer-events: none;
+}
+@media (max-width: 991px) {
+    .hero::before {
+        background: rgba(6,12,20,0.72);
+    }
 }
 .hero-badge {
     display: inline-block;
@@ -43,7 +51,7 @@
 }
 .hero-title span { color: #e84c2b; }
 .hero-sub {
-    color: #94a3b8;
+    color: rgba(255,255,255,.82);
     font-size: clamp(1rem, 1.8vw, 1.2rem);
     animation: fadeUp .6s ease .4s both;
 }
@@ -56,7 +64,7 @@
 }
 .hero-stats { animation: fadeUp .6s ease .7s both; }
 .hero-stat-num { font-size: 1.6rem; font-weight: 800; color: #fff; line-height: 1; }
-.hero-stat-lbl { font-size: .75rem; color: #64748b; }
+.hero-stat-lbl { font-size: .75rem; color: rgba(255,255,255,.55); }
 
 /* ── Value strip ── */
 .value-strip { background: #fff; border-bottom: 1px solid #f1f5f9; }
