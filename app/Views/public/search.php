@@ -63,18 +63,14 @@ function searchPageUrl(int $page, array $filters): string {
 
                 <input type="checkbox" class="btn-check" id="has_pool" name="has_pool" value="1" autocomplete="off"
                        <?= !empty($filters['has_pool']) ? 'checked' : '' ?>>
-                <label class="btn btn-outline-secondary btn-sm fac-toggle" for="has_pool"
-                       title="Swimming Pool">
-                    <i class="bi bi-water"></i>
-                    <span class="d-none d-sm-inline">Pool</span>
+                <label class="btn btn-outline-secondary btn-sm fac-toggle" for="has_pool">
+                    <i class="bi bi-water"></i> Pool
                 </label>
 
                 <input type="checkbox" class="btn-check" id="has_bbq" name="has_bbq" value="1" autocomplete="off"
                        <?= !empty($filters['has_bbq']) ? 'checked' : '' ?>>
-                <label class="btn btn-outline-secondary btn-sm fac-toggle" for="has_bbq"
-                       title="BBQ Pit / Grill">
-                    <i class="bi bi-fire"></i>
-                    <span class="d-none d-sm-inline">BBQ</span>
+                <label class="btn btn-outline-secondary btn-sm fac-toggle" for="has_bbq">
+                    <i class="bi bi-fire"></i> BBQ
                 </label>
 
                 <button type="submit" class="btn btn-primary btn-sm px-3">
