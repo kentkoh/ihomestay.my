@@ -67,7 +67,8 @@ class User {
 
     public static function getFullProfile(int $userId): ?array {
         $stmt = Database::get()->prepare(
-            "SELECT u.*, op.company_name, op.profile_photo, op.about, op.address
+            "SELECT u.*, op.company_name, op.profile_photo, op.about, op.address,
+                    op.facebook_url, op.instagram_url, op.website_url
              FROM users u
              LEFT JOIN owner_profiles op ON op.user_id = u.id
              WHERE u.id = ? LIMIT 1"
@@ -91,24 +92,32 @@ class User {
         if ($check->fetch()) {
             $pdo->prepare(
                 "UPDATE owner_profiles SET company_name = ?, about = ?, address = ?,
+                 facebook_url = ?, instagram_url = ?, website_url = ?,
                  profile_photo = COALESCE(?, profile_photo), updated_at = NOW()
                  WHERE user_id = ?"
             )->execute([
-                $data['company_name'] ?? null,
-                $data['about']        ?? null,
-                $data['address']      ?? null,
+                $data['company_name']  ?? null,
+                $data['about']         ?? null,
+                $data['address']       ?? null,
+                $data['facebook_url']  ?? null,
+                $data['instagram_url'] ?? null,
+                $data['website_url']   ?? null,
                 $data['profile_photo'] ?? null,
                 $userId,
             ]);
         } else {
             $pdo->prepare(
-                "INSERT INTO owner_profiles (user_id, company_name, about, address, profile_photo, created_at, updated_at)
-                 VALUES (?, ?, ?, ?, ?, NOW(), NOW())"
+                "INSERT INTO owner_profiles
+                 (user_id, company_name, about, address, facebook_url, instagram_url, website_url, profile_photo, created_at, updated_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())"
             )->execute([
                 $userId,
                 $data['company_name']  ?? null,
                 $data['about']         ?? null,
                 $data['address']       ?? null,
+                $data['facebook_url']  ?? null,
+                $data['instagram_url'] ?? null,
+                $data['website_url']   ?? null,
                 $data['profile_photo'] ?? null,
             ]);
         }

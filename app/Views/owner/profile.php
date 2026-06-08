@@ -101,6 +101,54 @@
             </div>
         </div>
 
+        <!-- Social Links -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white d-flex align-items-center justify-content-between">
+                <span class="fw-semibold">Social Links</span>
+                <span class="badge px-2 py-1" style="background:#fef3c7;color:#92400e;font-size:.72rem;">
+                    <i class="bi bi-patch-check me-1"></i>Shown publicly for Verified Hosts only
+                </span>
+            </div>
+            <div class="card-body p-4">
+                <p class="text-muted small mb-3">Fill these in now — they go live automatically once you're a Verified Host.</p>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Facebook</label>
+                        <div class="input-group">
+                            <span class="input-group-text" style="background:#1877f2;border-color:#1877f2;">
+                                <i class="bi bi-facebook text-white"></i>
+                            </span>
+                            <input type="url" name="facebook_url" class="form-control"
+                                   value="<?= htmlspecialchars($profile['facebook_url'] ?? '') ?>"
+                                   placeholder="https://facebook.com/yourpage" maxlength="512">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Instagram</label>
+                        <div class="input-group">
+                            <span class="input-group-text" style="background:#e1306c;border-color:#e1306c;">
+                                <i class="bi bi-instagram text-white"></i>
+                            </span>
+                            <input type="url" name="instagram_url" class="form-control"
+                                   value="<?= htmlspecialchars($profile['instagram_url'] ?? '') ?>"
+                                   placeholder="https://instagram.com/yourhandle" maxlength="512">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Website</label>
+                        <div class="input-group">
+                            <span class="input-group-text" style="background:#0f172a;border-color:#0f172a;">
+                                <i class="bi bi-globe2 text-white"></i>
+                            </span>
+                            <input type="url" name="website_url" class="form-control"
+                                   value="<?= htmlspecialchars($profile['website_url'] ?? '') ?>"
+                                   placeholder="https://yourwebsite.com" maxlength="512">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Address -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white fw-semibold">Address</div>

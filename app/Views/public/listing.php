@@ -254,6 +254,35 @@ $hasMap     = !empty($listing['latitude']) && !empty($listing['longitude']);
                     </div>
                 <?php endif; ?>
 
+                <?php if ($isVerified && (!empty($listing['owner_facebook']) || !empty($listing['owner_instagram']) || !empty($listing['owner_website']))): ?>
+                <div class="mt-3 d-flex flex-column gap-2">
+                    <?php if (!empty($listing['owner_facebook'])): ?>
+                        <a href="<?= htmlspecialchars($listing['owner_facebook']) ?>"
+                           target="_blank" rel="noopener noreferrer"
+                           class="btn btn-sm d-flex align-items-center gap-2"
+                           style="background:#1877f2;color:#fff;border-radius:8px;font-size:.82rem;">
+                            <i class="bi bi-facebook"></i> Facebook Page
+                        </a>
+                    <?php endif; ?>
+                    <?php if (!empty($listing['owner_instagram'])): ?>
+                        <a href="<?= htmlspecialchars($listing['owner_instagram']) ?>"
+                           target="_blank" rel="noopener noreferrer"
+                           class="btn btn-sm d-flex align-items-center gap-2"
+                           style="background:#e1306c;color:#fff;border-radius:8px;font-size:.82rem;">
+                            <i class="bi bi-instagram"></i> Instagram
+                        </a>
+                    <?php endif; ?>
+                    <?php if (!empty($listing['owner_website'])): ?>
+                        <a href="<?= htmlspecialchars($listing['owner_website']) ?>"
+                           target="_blank" rel="noopener noreferrer"
+                           class="btn btn-sm d-flex align-items-center gap-2"
+                           style="background:#0f172a;color:#fff;border-radius:8px;font-size:.82rem;">
+                            <i class="bi bi-globe2"></i> Website
+                        </a>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
+
                 <hr class="my-3">
 
                 <!-- Share / back links -->

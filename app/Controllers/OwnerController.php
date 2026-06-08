@@ -90,9 +90,12 @@ class OwnerController {
 
         // Update owner_profiles table
         User::updateOwnerProfile($userId, [
-            'company_name'  => trim($_POST['company_name'] ?? '') ?: null,
-            'about'         => trim($_POST['about'] ?? '')        ?: null,
-            'address'       => trim($_POST['address'] ?? '')      ?: null,
+            'company_name'  => trim($_POST['company_name'] ?? '')  ?: null,
+            'about'         => trim($_POST['about'] ?? '')         ?: null,
+            'address'       => trim($_POST['address'] ?? '')       ?: null,
+            'facebook_url'  => trim($_POST['facebook_url'] ?? '')  ?: null,
+            'instagram_url' => trim($_POST['instagram_url'] ?? '') ?: null,
+            'website_url'   => trim($_POST['website_url'] ?? '')   ?: null,
             'profile_photo' => $photoFilename,
         ]);
 

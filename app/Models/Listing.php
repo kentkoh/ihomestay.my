@@ -300,6 +300,7 @@ class Listing {
                     u.name as owner_name, u.role as owner_role, u.whatsapp as owner_whatsapp,
                     (u.verification_status = 'verified' OR u.role = 'admin') as owner_is_verified,
                     op.company_name as owner_company, op.about as owner_bio, op.profile_photo as owner_photo,
+                    op.facebook_url as owner_facebook, op.instagram_url as owner_instagram, op.website_url as owner_website,
                     op.verified_at,
                     (l.is_featured = 1 AND (l.featured_until IS NULL OR l.featured_until > NOW())) as is_featured_active
              FROM listings l
