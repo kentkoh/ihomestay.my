@@ -56,7 +56,7 @@ class OwnerListingController {
         $listingId = Listing::create([
             'owner_id'        => Auth::id(),
             'title'           => trim($_POST['title']),
-            'description'     => trim($_POST['description']),
+            'description'     => $this->sanitizeDescription($_POST['description'] ?? ''),
             'address'         => trim($_POST['address']),
             'state_id'        => (int) $_POST['state_id'],
             'city_id'         => (int) $_POST['city_id'],
@@ -121,7 +121,7 @@ class OwnerListingController {
 
         Listing::update((int) $id, [
             'title'           => trim($_POST['title']),
-            'description'     => trim($_POST['description']),
+            'description'     => $this->sanitizeDescription($_POST['description'] ?? ''),
             'address'         => trim($_POST['address']),
             'state_id'        => (int) $_POST['state_id'],
             'city_id'         => (int) $_POST['city_id'],
@@ -303,6 +303,18 @@ class OwnerListingController {
             exit;
         }
         return $listing;
+    }
+
+    private function sanitizeDescription(string $text): string {
+        // Strip HTML tags
+        $text = strip_tags($text);
+        // Strip URLs (http/https/ftp/www)
+        $text = preg_replace('#(https?://|ftp://|www\.)\S+#iu', '', $text);
+        // Strip phone numbers: sequences of 8–15 digits with optional +, spaces, dashes, brackets
+        $text = preg_replace('/(\+?[\d][\d\s\-\(\)\.]{6,}[\d])/', '', $text);
+        // Collapse multiple blank lines into one
+        $text = preg_replace("/\n{3,}/", "\n\n", $text);
+        return trim($text);
     }
 
     private function validate(array $post): array {
