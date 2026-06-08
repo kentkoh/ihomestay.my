@@ -1,6 +1,6 @@
 CREATE TABLE listing_promotions (
     id           BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    listing_id   BIGINT UNSIGNED NOT NULL,
+    listing_id   INT UNSIGNED NOT NULL,
     label        VARCHAR(100)    NOT NULL,
     discount_type ENUM('percent','fixed') NOT NULL DEFAULT 'percent',
     discount_value DECIMAL(8,2)  NOT NULL,
