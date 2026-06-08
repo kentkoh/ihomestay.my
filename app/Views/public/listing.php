@@ -266,6 +266,15 @@ $promo      = (!empty($listing['active_promo']) && $isVerified) ? json_decode($l
                 </div>
                 <?php endif; ?>
 
+                <!-- Check Availability -->
+                <?php if ($isVerified && !empty($blockedDates)): ?>
+                <button type="button" class="btn btn-outline-secondary w-100 mb-3"
+                        data-bs-toggle="modal" data-bs-target="#availModal"
+                        style="border-radius:8px;">
+                    <i class="bi bi-calendar3 me-2"></i>Check Availability
+                </button>
+                <?php endif; ?>
+
                 <!-- WhatsApp button -->
                 <?php if ($waNumber): ?>
                     <?php if ($isVerified): ?>
@@ -428,6 +437,12 @@ if ($isVerified) {
             <small>/night</small>
         </div>
         <div class="s-spacer"></div>
+        <?php if (!empty($blockedDates)): ?>
+        <button type="button" class="s-map" data-bs-toggle="modal" data-bs-target="#availModal"
+                style="background:none;border:1px solid rgba(255,255,255,.2);cursor:pointer;">
+            <i class="bi bi-calendar3"></i><span class="d-none d-sm-inline ms-1">Availability</span>
+        </button>
+        <?php endif; ?>
         <?php if ($hasMap): ?>
         <a href="#map-section" class="s-map">
             <i class="bi bi-map"></i><span class="d-none d-sm-inline ms-1">Map</span>
@@ -443,6 +458,100 @@ if ($isVerified) {
     $stickyBar = ob_get_clean();
 }
 ?>
+
+<!-- Availability Modal -->
+<?php if ($isVerified): ?>
+<div class="modal fade" id="availModal" tabindex="-1" aria-labelledby="availModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="availModalLabel">
+                    <i class="bi bi-calendar3 me-2" style="color:#e84c2b;"></i>Check Availability
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body px-4 pb-4">
+                <div class="d-flex gap-3 mb-3 flex-wrap" style="font-size:.8rem;">
+                    <span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#d1fae5;border:1px solid #6ee7b7;vertical-align:middle;"></span> Available</span>
+                    <span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#fee2e2;border:1px solid #fecaca;vertical-align:middle;"></span> Unavailable</span>
+                    <span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#f1f5f9;vertical-align:middle;"></span> Past</span>
+                </div>
+                <div id="pubCal">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="pubCalPrev"><i class="bi bi-chevron-left"></i></button>
+                        <span class="fw-semibold" id="pubCalTitle"></span>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="pubCalNext"><i class="bi bi-chevron-right"></i></button>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;" id="pubCalGrid"></div>
+                </div>
+                <p class="text-muted small mt-3 mb-0">
+                    Contact the owner via WhatsApp to confirm your dates.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+#pubCalGrid .pc-label { text-align:center; font-size:.72rem; color:#94a3b8; font-weight:600; padding:4px 0; }
+#pubCalGrid .pc-cell  { text-align:center; font-size:.82rem; border-radius:6px; padding:7px 2px; }
+#pubCalGrid .pc-empty { }
+#pubCalGrid .pc-past  { background:#f8fafc; color:#cbd5e1; }
+#pubCalGrid .pc-blocked { background:#fee2e2; color:#dc2626; }
+#pubCalGrid .pc-available { background:#d1fae5; color:#065f46; }
+#pubCalGrid .pc-today { outline:2px solid #e84c2b; }
+</style>
+<script>
+(function () {
+    const blocked = new Set(<?= json_encode($blockedDates) ?>);
+    const today   = new Date(); today.setHours(0,0,0,0);
+    let cur = new Date(today.getFullYear(), today.getMonth(), 1);
+
+    function pad(n) { return String(n).padStart(2,'0'); }
+    function ds(y,m,d) { return y+'-'+pad(m+1)+'-'+pad(d); }
+
+    function render() {
+        const y = cur.getFullYear(), m = cur.getMonth();
+        document.getElementById('pubCalTitle').textContent =
+            new Date(y,m,1).toLocaleDateString('en-MY',{month:'long',year:'numeric'});
+
+        const grid = document.getElementById('pubCalGrid');
+        grid.innerHTML = '';
+        ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(l => {
+            const el = document.createElement('div');
+            el.className = 'pc-label'; el.textContent = l;
+            grid.appendChild(el);
+        });
+
+        const startDay = new Date(y,m,1).getDay();
+        const days = new Date(y,m+1,0).getDate();
+
+        for (let i = 0; i < startDay; i++) {
+            const el = document.createElement('div'); el.className = 'pc-empty'; grid.appendChild(el);
+        }
+        for (let d = 1; d <= days; d++) {
+            const dStr = ds(y,m,d);
+            const cellDate = new Date(y,m,d);
+            const isToday = cellDate.getTime() === today.getTime();
+            const isPast  = cellDate < today;
+            const el = document.createElement('div');
+            el.textContent = d;
+            el.className = 'pc-cell ' + (isPast ? 'pc-past' : blocked.has(dStr) ? 'pc-blocked' : 'pc-available');
+            if (isToday) el.classList.add('pc-today');
+            grid.appendChild(el);
+        }
+    }
+
+    document.getElementById('pubCalPrev').addEventListener('click', () => {
+        cur.setMonth(cur.getMonth()-1); render();
+    });
+    document.getElementById('pubCalNext').addEventListener('click', () => {
+        cur.setMonth(cur.getMonth()+1); render();
+    });
+
+    document.getElementById('availModal').addEventListener('show.bs.modal', render);
+})();
+</script>
+<?php endif; ?>
 
 <!-- Unverified owner modal -->
 <div class="modal fade" id="unverifiedModal" tabindex="-1" aria-labelledby="unverifiedModalLabel" aria-hidden="true">

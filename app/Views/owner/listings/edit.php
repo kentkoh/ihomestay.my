@@ -298,6 +298,10 @@ foreach ($cities as $city) {
                class="btn btn-outline-warning fw-semibold">
                 <i class="bi bi-tag me-1"></i>Manage Promotions
             </a>
+            <a href="/owner/listings/<?= (int)$listing['id'] ?>/availability"
+               class="btn btn-outline-primary fw-semibold">
+                <i class="bi bi-calendar3 me-1"></i>Manage Availability
+            </a>
             <a href="/owner/listings" class="btn btn-outline-secondary">Cancel</a>
         </div>
     </form>

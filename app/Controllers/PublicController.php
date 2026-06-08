@@ -27,10 +27,13 @@ class PublicController {
             echo '<h1>404 — Listing not found</h1>';
             return;
         }
-        $images   = Listing::getImages((int) $listing['id']);
-        $facilities = Listing::getFacilitiesForListing((int) $listing['id']);
-        $similar  = Listing::similarListings((int) $listing['id'], (int) $listing['city_id'], (int) $listing['state_id'], 6);
-        $pageTitle  = $listing['title'] . ' — ihomestay.my';
+        $images       = Listing::getImages((int) $listing['id']);
+        $facilities   = Listing::getFacilitiesForListing((int) $listing['id']);
+        $similar      = Listing::similarListings((int) $listing['id'], (int) $listing['city_id'], (int) $listing['state_id'], 6);
+        $blockedDates = (bool)($listing['owner_is_verified'] ?? false)
+            ? ListingBlockedDate::blockedDatesArray((int) $listing['id'])
+            : [];
+        $pageTitle    = $listing['title'] . ' — ihomestay.my';
 
         ob_start();
         require APP_PATH . '/Views/public/listing.php';
