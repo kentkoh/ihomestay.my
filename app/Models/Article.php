@@ -99,4 +99,10 @@ class Article {
     public static function countPublished(): int {
         return (int) Database::get()->query('SELECT COUNT(*) FROM articles WHERE is_published = 1')->fetchColumn();
     }
+
+    public static function allPublishedForSitemap(): array {
+        return Database::get()
+            ->query("SELECT slug, published_at FROM articles WHERE is_published = 1 ORDER BY published_at DESC")
+            ->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

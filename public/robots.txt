@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin/
+Disallow: /owner/
+Disallow: /auth/
+Disallow: /payment/
+Disallow: /logout
+Disallow: /search?*
+
+Sitemap: https://ihomestay.my/sitemap.xml

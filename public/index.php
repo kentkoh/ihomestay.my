@@ -161,6 +161,9 @@ $router->post('/owner/verify',  ['VerificationController', 'submitApplication'])
 $router->post('/payment/verify-callback', ['VerificationController', 'callback']);
 $router->get('/payment/verify-return',    ['VerificationController', 'returnPage']);
 
+// Sitemap & robots (must be before catch-all routes)
+$router->get('/sitemap.xml', ['PublicController', 'sitemap']);
+
 // Public static pages
 $router->get('/about',   ['PublicController', 'about']);
 $router->get('/contact', ['PublicController', 'contact']);

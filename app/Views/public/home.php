@@ -427,3 +427,34 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.12 });
 document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "ihomestay.my",
+  "url": "<?= htmlspecialchars(rtrim(env('APP_URL', 'https://ihomestay.my'), '/')) ?>",
+  "description": "Malaysia's homestay directory — browse and book direct from owners. No platform fees, no middleman.",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "<?= htmlspecialchars(rtrim(env('APP_URL', 'https://ihomestay.my'), '/')) ?>/search?q={search_term_string}"
+    },
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "ihomestay.my",
+  "url": "<?= htmlspecialchars(rtrim(env('APP_URL', 'https://ihomestay.my'), '/')) ?>",
+  "logo": "<?= htmlspecialchars(rtrim(env('APP_URL', 'https://ihomestay.my'), '/')) ?>/assets/logo.png",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer support",
+    "url": "<?= htmlspecialchars(rtrim(env('APP_URL', 'https://ihomestay.my'), '/')) ?>/contact"
+  }
+}
+</script>

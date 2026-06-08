@@ -1,9 +1,41 @@
+<?php
+$_path    = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+$_noindex = (bool) preg_match('#^/(owner|admin|auth|payment|logout)#', $_path);
+$_base    = rtrim(env('APP_URL', 'https://ihomestay.my'), '/');
+$canonicalUrl = $canonicalUrl ?? ($_base . strtok($_path, '?'));
+$metaDesc     = $metaDesc ?? 'Malaysia\'s homestay directory — browse and book direct from owners. No platform fees, no middleman. Find family homestays across all states in Malaysia.';
+$metaImage    = $metaImage ?? ($_base . '/assets/og-image.jpg');
+$_title       = htmlspecialchars(($pageTitle ?? 'ihomestay.my') . ' | ihomestay.my');
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($pageTitle ?? 'ihomestay.my') ?> | ihomestay.my</title>
+    <title><?= $_title ?></title>
+    <meta name="description" content="<?= htmlspecialchars($metaDesc) ?>">
+    <link rel="canonical" href="<?= htmlspecialchars($canonicalUrl) ?>">
+    <?php if ($_noindex): ?>
+    <meta name="robots" content="noindex,nofollow">
+    <?php else: ?>
+    <meta name="robots" content="index,follow">
+    <?php endif; ?>
+
+    <!-- Open Graph -->
+    <meta property="og:type"        content="website">
+    <meta property="og:site_name"   content="ihomestay.my">
+    <meta property="og:title"       content="<?= $_title ?>">
+    <meta property="og:description" content="<?= htmlspecialchars($metaDesc) ?>">
+    <meta property="og:url"         content="<?= htmlspecialchars($canonicalUrl) ?>">
+    <meta property="og:image"       content="<?= htmlspecialchars($metaImage) ?>">
+    <meta property="og:locale"      content="en_MY">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card"        content="summary_large_image">
+    <meta name="twitter:title"       content="<?= $_title ?>">
+    <meta name="twitter:description" content="<?= htmlspecialchars($metaDesc) ?>">
+    <meta name="twitter:image"       content="<?= htmlspecialchars($metaImage) ?>">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>

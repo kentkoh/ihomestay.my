@@ -106,3 +106,29 @@
     </div>
 </div>
 <?php endif; ?>
+<?php
+$_ldBase    = rtrim(env('APP_URL', 'https://ihomestay.my'), '/');
+$_ldImage   = !empty($article['cover_image']) ? $_ldBase . '/uploads/' . $article['cover_image'] : null;
+$_ldDate    = substr($article['published_at'] ?? date('Y-m-d'), 0, 10);
+$_ldExcerpt = $article['excerpt'] ?? mb_substr(strip_tags($article['body'] ?? ''), 0, 200);
+?>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": <?= json_encode($article['title']) ?>,
+  "description": <?= json_encode($_ldExcerpt) ?>,
+  "datePublished": <?= json_encode($_ldDate) ?>,
+  "url": <?= json_encode($_ldBase . '/articles/' . $article['slug']) ?>,
+  <?php if ($_ldImage): ?>"image": <?= json_encode($_ldImage) ?>,<?php endif; ?>
+  "publisher": {
+    "@type": "Organization",
+    "name": "ihomestay.my",
+    "url": <?= json_encode($_ldBase) ?>,
+    "logo": {
+      "@type": "ImageObject",
+      "url": <?= json_encode($_ldBase . '/assets/logo.png') ?>
+    }
+  }
+}
+</script>

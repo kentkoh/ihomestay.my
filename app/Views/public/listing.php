@@ -608,3 +608,45 @@ function setMain(thumbEl, src) {
     thumbEl.classList.add('active');
 }
 </script>
+<?php
+$_ldBase   = rtrim(env('APP_URL', 'https://ihomestay.my'), '/');
+$_ldImages = [];
+foreach ($images as $_img) {
+    $_ldImages[] = $_ldBase . '/uploads/' . $_img['filename'];
+}
+$_ldPrice = 'RM ' . number_format($listing['price_per_night'], 0) . '/night';
+$_ldAddr  = implode(', ', array_filter([
+    $listing['address']    ?? '',
+    $listing['city_name']  ?? '',
+    $listing['state_name'] ?? '',
+    'Malaysia',
+]));
+?>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LodgingBusiness",
+  "name": <?= json_encode($listing['title']) ?>,
+  "description": <?= json_encode(mb_substr(strip_tags($listing['description'] ?? ''), 0, 300)) ?>,
+  "url": <?= json_encode($_ldBase . '/listing/' . $listing['slug']) ?>,
+  "image": <?= json_encode($_ldImages) ?>,
+  "priceRange": <?= json_encode($_ldPrice) ?>,
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": <?= json_encode($listing['address'] ?? '') ?>,
+    "addressLocality": <?= json_encode($listing['city_name'] ?? '') ?>,
+    "addressRegion": <?= json_encode($listing['state_name'] ?? '') ?>,
+    "addressCountry": "MY"
+  }<?php if (!empty($listing['latitude']) && !empty($listing['longitude'])): ?>,
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": <?= (float) $listing['latitude'] ?>,
+    "longitude": <?= (float) $listing['longitude'] ?>
+  }<?php endif; ?>,
+  "numberOfRooms": <?= (int) ($listing['bedrooms'] ?? 1) ?>,
+  "occupancy": {
+    "@type": "QuantitativeValue",
+    "maxValue": <?= (int) ($listing['max_guests'] ?? 1) ?>
+  }
+}
+</script>

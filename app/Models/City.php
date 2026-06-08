@@ -28,4 +28,11 @@ class City {
         $stmt->execute([$stateId, $slug]);
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
+
+    public static function allWithStateSlugs(): array {
+        return Database::get()
+            ->query("SELECT c.slug as city_slug, s.slug as state_slug
+                     FROM cities c JOIN states s ON c.state_id = s.id ORDER BY s.name, c.name")
+            ->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

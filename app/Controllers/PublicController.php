@@ -13,7 +13,9 @@ class PublicController {
             $citiesByState[$city['state_id']][] = $city;
         }
 
-        $pageTitle = 'Malaysia Homestay Directory — Book Direct from Owners';
+        $pageTitle    = 'Malaysia Homestay Directory — Book Direct from Owners';
+        $metaDesc     = 'Browse and book Malaysian homestays direct from owners — no platform fees, no middleman. Find family homestays across Selangor, Johor, Kedah, Kelantan and all states in Malaysia.';
+        $canonicalUrl = rtrim(env('APP_URL', 'https://ihomestay.my'), '/') . '/';
         ob_start();
         require APP_PATH . '/Views/public/home.php';
         $content = ob_get_clean();
@@ -34,6 +36,17 @@ class PublicController {
             ? ListingBlockedDate::blockedDatesArray((int) $listing['id'])
             : [];
         $pageTitle    = $listing['title'] . ' — ihomestay.my';
+
+        $rawDesc  = strip_tags($listing['description'] ?? '');
+        $metaDesc = mb_strlen($rawDesc) > 155 ? mb_substr($rawDesc, 0, 152) . '…' : $rawDesc;
+
+        $primaryImg = null;
+        foreach ($images as $img) {
+            if ($img['is_primary']) { $primaryImg = $img['filename']; break; }
+        }
+        if (!$primaryImg && !empty($images)) $primaryImg = $images[0]['filename'];
+        $metaImage    = $primaryImg ? (rtrim(env('APP_URL', 'https://ihomestay.my'), '/') . '/uploads/' . $primaryImg) : null;
+        $canonicalUrl = rtrim(env('APP_URL', 'https://ihomestay.my'), '/') . '/listing/' . $listing['slug'];
 
         ob_start();
         require APP_PATH . '/Views/public/listing.php';
@@ -67,6 +80,14 @@ class PublicController {
         );
         $related   = array_slice(array_values($related), 0, 3);
         $pageTitle = $article['title'] . ' — ihomestay.my';
+
+        $rawExcerpt = $article['excerpt'] ?? strip_tags($article['body'] ?? '');
+        $metaDesc   = mb_strlen($rawExcerpt) > 155 ? mb_substr($rawExcerpt, 0, 152) . '…' : $rawExcerpt;
+        $metaImage  = !empty($article['cover_image'])
+            ? rtrim(env('APP_URL', 'https://ihomestay.my'), '/') . '/uploads/' . $article['cover_image']
+            : null;
+        $canonicalUrl = rtrim(env('APP_URL', 'https://ihomestay.my'), '/') . '/articles/' . $article['slug'];
+
         ob_start();
         require APP_PATH . '/Views/public/article.php';
         $content = ob_get_clean();
@@ -116,18 +137,97 @@ class PublicController {
         $contextState = !empty($filters['state_id']) ? State::findById($filters['state_id']) : null;
         $contextCity  = !empty($filters['city_id'])  ? City::findById($filters['city_id'])  : null;
 
+        $base = rtrim(env('APP_URL', 'https://ihomestay.my'), '/');
+
         if ($contextCity) {
-            $pageTitle = $contextCity['name'] . ' Homestays — ihomestay.my';
+            $pageTitle    = $contextCity['name'] . ' Homestays — ihomestay.my';
+            $metaDesc     = 'Find and book homestays in ' . $contextCity['name'] . ', ' . ($contextState['name'] ?? '') . '. Direct from owners, no platform fees.';
+            $canonicalUrl = $base . '/' . ($contextState['slug'] ?? '') . '/' . $contextCity['slug'];
         } elseif ($contextState) {
-            $pageTitle = $contextState['name'] . ' Homestays — ihomestay.my';
+            $pageTitle    = $contextState['name'] . ' Homestays — ihomestay.my';
+            $metaDesc     = 'Browse homestays in ' . $contextState['name'] . ', Malaysia. Book direct from owners — no middleman, no platform fees. Family-friendly options across ' . $contextState['name'] . '.';
+            $canonicalUrl = $base . '/' . $contextState['slug'];
         } else {
-            $pageTitle = 'Search Homestays — ihomestay.my';
+            $pageTitle    = 'Search Homestays — ihomestay.my';
+            $metaDesc     = 'Search Malaysian homestays by state, city, guests and facilities. Book direct from owners across all states in Malaysia.';
+            $canonicalUrl = $base . '/search';
         }
 
         ob_start();
         require APP_PATH . '/Views/public/search.php';
         $content = ob_get_clean();
         require APP_PATH . '/Views/layouts/main.php';
+    }
+
+    public function sitemap(): void {
+        $base     = rtrim(env('APP_URL', 'https://ihomestay.my'), '/');
+        $listings = Listing::allPublishedForSitemap();
+        $articles = Article::allPublishedForSitemap();
+        $states   = State::all();
+        $cities   = City::allWithStateSlugs();
+
+        $today = date('Y-m-d');
+
+        header('Content-Type: application/xml; charset=utf-8');
+        echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+
+        $staticPages = [
+            ['loc' => '/',         'priority' => '1.0', 'freq' => 'daily'],
+            ['loc' => '/search',   'priority' => '0.8', 'freq' => 'daily'],
+            ['loc' => '/articles', 'priority' => '0.7', 'freq' => 'weekly'],
+            ['loc' => '/about',    'priority' => '0.4', 'freq' => 'monthly'],
+            ['loc' => '/contact',  'priority' => '0.4', 'freq' => 'monthly'],
+        ];
+        foreach ($staticPages as $p) {
+            echo "  <url>\n";
+            echo '    <loc>' . htmlspecialchars($base . $p['loc']) . "</loc>\n";
+            echo '    <lastmod>' . $today . "</lastmod>\n";
+            echo '    <changefreq>' . $p['freq'] . "</changefreq>\n";
+            echo '    <priority>' . $p['priority'] . "</priority>\n";
+            echo "  </url>\n";
+        }
+
+        foreach ($states as $state) {
+            echo "  <url>\n";
+            echo '    <loc>' . htmlspecialchars($base . '/' . $state['slug']) . "</loc>\n";
+            echo '    <lastmod>' . $today . "</lastmod>\n";
+            echo "    <changefreq>weekly</changefreq>\n";
+            echo "    <priority>0.8</priority>\n";
+            echo "  </url>\n";
+        }
+
+        foreach ($cities as $city) {
+            echo "  <url>\n";
+            echo '    <loc>' . htmlspecialchars($base . '/' . $city['state_slug'] . '/' . $city['city_slug']) . "</loc>\n";
+            echo '    <lastmod>' . $today . "</lastmod>\n";
+            echo "    <changefreq>weekly</changefreq>\n";
+            echo "    <priority>0.7</priority>\n";
+            echo "  </url>\n";
+        }
+
+        foreach ($listings as $l) {
+            $mod = substr($l['updated_at'] ?? $today, 0, 10);
+            echo "  <url>\n";
+            echo '    <loc>' . htmlspecialchars($base . '/listing/' . $l['slug']) . "</loc>\n";
+            echo '    <lastmod>' . $mod . "</lastmod>\n";
+            echo "    <changefreq>weekly</changefreq>\n";
+            echo "    <priority>0.9</priority>\n";
+            echo "  </url>\n";
+        }
+
+        foreach ($articles as $a) {
+            $mod = substr($a['published_at'] ?? $today, 0, 10);
+            echo "  <url>\n";
+            echo '    <loc>' . htmlspecialchars($base . '/articles/' . $a['slug']) . "</loc>\n";
+            echo '    <lastmod>' . $mod . "</lastmod>\n";
+            echo "    <changefreq>monthly</changefreq>\n";
+            echo "    <priority>0.6</priority>\n";
+            echo "  </url>\n";
+        }
+
+        echo '</urlset>';
+        exit;
     }
 
     public function about(): void {

@@ -474,6 +474,12 @@ class Listing {
         return [$where, $params];
     }
 
+    public static function allPublishedForSitemap(): array {
+        return Database::get()
+            ->query("SELECT slug, updated_at FROM listings WHERE status = 'published' ORDER BY updated_at DESC")
+            ->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     private static function makeSlug(string $title): string {
         $slug = strtolower($title);
         $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
