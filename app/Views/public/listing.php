@@ -140,6 +140,31 @@ $promo      = (!empty($listing['active_promo']) && $isVerified) ? json_decode($l
                 <span class="stat-chip"><i class="bi bi-calendar-check" style="color:#e84c2b;"></i> Min <?= (int)$listing['min_nights'] ?> Night<?= $listing['min_nights'] != 1 ? 's' : '' ?></span>
             </div>
 
+            <!-- Promo banner (mobile only — repeated from booking card) -->
+            <?php if ($promo): ?>
+            <?php
+                $basePrice  = (float) $listing['price_per_night'];
+                $promoPrice = $promo['type'] === 'percent'
+                    ? $basePrice * (1 - $promo['value'] / 100)
+                    : $basePrice - $promo['value'];
+                $promoPrice = max(0, $promoPrice);
+            ?>
+            <div class="d-block d-lg-none mb-3 p-3 rounded-3" style="background:#fffbeb;border:1px solid #fde68a;">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <i class="bi bi-tag-fill" style="color:#f59e0b;"></i>
+                    <span class="fw-bold" style="color:#92400e;font-size:.9rem;"><?= htmlspecialchars($promo['label']) ?></span>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <span style="text-decoration:line-through;color:#94a3b8;font-size:.9rem;">RM <?= number_format($basePrice, 0) ?></span>
+                    <span style="color:#e84c2b;font-size:1.3rem;font-weight:800;">RM <?= number_format($promoPrice, 0) ?></span>
+                    <span class="text-muted" style="font-size:.85rem;">/night</span>
+                    <span class="badge ms-1" style="background:#fef2f2;color:#e84c2b;">
+                        <?= $promo['type'] === 'percent' ? (int)$promo['value'] . '% OFF' : 'RM' . (int)$promo['value'] . ' OFF' ?>
+                    </span>
+                </div>
+            </div>
+            <?php endif; ?>
+
             <!-- Description -->
             <?php if ($listing['description']): ?>
             <div class="card border-0 shadow-sm p-4 mb-4">
