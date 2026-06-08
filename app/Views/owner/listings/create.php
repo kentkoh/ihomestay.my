@@ -89,12 +89,16 @@ foreach ($cities as $city) {
             <div class="card-header bg-white fw-semibold">Pin Location on Map</div>
             <div class="card-body p-4">
                 <p class="text-muted small mb-2">Search your address or click on the map to drop a pin. This helps guests find you easily.</p>
-                <div class="input-group mb-2">
-                    <input type="text" id="map-search" class="form-control" placeholder="Search address (e.g. Jalan Merdeka, Kuantan)">
-                    <button type="button" class="btn btn-outline-secondary" id="map-search-btn">
+                <div class="input-group mb-1">
+                    <input type="text" id="map-search" class="form-control" placeholder="e.g. 25200 or Jalan Merdeka, Kuantan">
+                    <button type="button" class="btn btn-primary" id="map-search-btn">
                         <i class="bi bi-search"></i> Search
                     </button>
                 </div>
+                <button type="button" class="btn btn-sm btn-outline-secondary mb-2" id="use-address-btn">
+                    <i class="bi bi-arrow-up-circle me-1"></i> Use address &amp; postcode from form
+                </button>
+                <div id="map-error" class="alert alert-warning py-1 px-2 small mb-2" style="display:none;"></div>
                 <div id="map" style="height:350px;border-radius:8px;border:1px solid #dee2e6;"></div>
                 <div class="d-flex gap-3 mt-2">
                     <div class="text-muted small">
@@ -260,8 +264,8 @@ foreach ($cities as $city) {
     </form>
 </div>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 // Savings calculator for tiered pricing
 (function () {
@@ -336,11 +340,26 @@ document.getElementById('clear-pin').addEventListener('click', () => {
     document.getElementById('lng-display').textContent = 'not set';
 });
 
+function showMapError(msg) {
+    const el = document.getElementById('map-error');
+    el.textContent = msg;
+    el.style.display = '';
+}
+function hideMapError() {
+    document.getElementById('map-error').style.display = 'none';
+}
+
 function searchAddress() {
     const q = document.getElementById('map-search').value.trim();
     if (!q) return;
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&countrycodes=my&limit=1`)
-        .then(r => r.json())
+    const btn = document.getElementById('map-search-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+    hideMapError();
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&countrycodes=my&limit=1`, {
+        headers: { 'Accept': 'application/json' }
+    })
+        .then(r => { if (!r.ok) throw new Error('Search failed (HTTP ' + r.status + ')'); return r.json(); })
         .then(data => {
             if (data.length > 0) {
                 const lat = parseFloat(data[0].lat);
@@ -348,10 +367,27 @@ function searchAddress() {
                 setPin(lat, lng);
                 map.setView([lat, lng], 16);
             } else {
-                alert('Address not found. Try a more specific search or pin manually.');
+                showMapError('Address not found. Try a different postcode or address, or pin manually on the map.');
             }
+        })
+        .catch(err => {
+            showMapError('Search error: ' + err.message + '. Try pinning manually on the map.');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-search"></i> Search';
         });
 }
+
+document.getElementById('use-address-btn').addEventListener('click', () => {
+    const address  = (document.querySelector('[name="address"]')?.value  ?? '').trim();
+    const postcode = (document.querySelector('[name="postcode"]')?.value ?? '').trim();
+    const state    = document.querySelector('[name="state_id"] option:checked')?.textContent?.trim() ?? '';
+    const parts    = [address, postcode, state, 'Malaysia'].filter(Boolean);
+    if (!parts.length) return;
+    document.getElementById('map-search').value = parts.join(', ');
+    searchAddress();
+});
 
 document.getElementById('map-search-btn').addEventListener('click', searchAddress);
 document.getElementById('map-search').addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); searchAddress(); } });
