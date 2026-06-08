@@ -6,7 +6,7 @@ function searchPageUrl(int $page, array $filters): string {
 }
 ?>
 <style>
-.search-filter-bar { background:#fff; border-bottom:1px solid #e2e8f0; position:sticky; top:56px; z-index:90; }
+.search-filter-bar { background:#fff; border-bottom:1px solid #e2e8f0; position:sticky; top:0; z-index:90; box-shadow:0 2px 8px rgba(0,0,0,.06); }
 .listing-card { transition:transform .2s ease, box-shadow .2s ease; border:none !important; }
 .listing-card:hover { transform:translateY(-4px); box-shadow:0 12px 32px rgba(0,0,0,.1) !important; }
 .listing-thumb { height:210px; object-fit:cover; width:100%; }
