@@ -266,4 +266,146 @@ class AuthController {
         header('Location: /login');
         exit;
     }
+
+    public function googleRedirect(): void {
+        Auth::redirectIfLoggedIn();
+
+        $state = bin2hex(random_bytes(16));
+        $_SESSION['google_oauth_state'] = $state;
+
+        $params = http_build_query([
+            'client_id'     => env('GOOGLE_CLIENT_ID'),
+            'redirect_uri'  => env('GOOGLE_REDIRECT_URI'),
+            'response_type' => 'code',
+            'scope'         => 'openid email profile',
+            'state'         => $state,
+            'prompt'        => 'select_account',
+        ]);
+
+        header('Location: https://accounts.google.com/o/oauth2/v2/auth?' . $params);
+        exit;
+    }
+
+    public function googleCallback(): void {
+        $state = $_GET['state'] ?? '';
+        $code  = $_GET['code']  ?? '';
+
+        if (!$state || $state !== ($_SESSION['google_oauth_state'] ?? '')) {
+            $_SESSION['auth_error'] = 'Invalid OAuth state. Please try again.';
+            header('Location: /login');
+            exit;
+        }
+        unset($_SESSION['google_oauth_state']);
+
+        if (empty($code)) {
+            $_SESSION['auth_error'] = 'Google login was cancelled or failed.';
+            header('Location: /login');
+            exit;
+        }
+
+        // Exchange code for access token
+        $tokenBody = http_build_query([
+            'code'          => $code,
+            'client_id'     => env('GOOGLE_CLIENT_ID'),
+            'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+            'redirect_uri'  => env('GOOGLE_REDIRECT_URI'),
+            'grant_type'    => 'authorization_code',
+        ]);
+
+        $tokenCtx = stream_context_create([
+            'http' => [
+                'method'        => 'POST',
+                'header'        => "Content-Type: application/x-www-form-urlencoded\r\nContent-Length: " . strlen($tokenBody),
+                'content'       => $tokenBody,
+                'timeout'       => 15,
+                'ignore_errors' => true,
+            ],
+        ]);
+
+        $tokenResponse = @file_get_contents('https://oauth2.googleapis.com/token', false, $tokenCtx);
+        if (!$tokenResponse) {
+            $_SESSION['auth_error'] = 'Could not connect to Google. Please try again.';
+            header('Location: /login');
+            exit;
+        }
+
+        $tokenData   = json_decode($tokenResponse, true);
+        $accessToken = $tokenData['access_token'] ?? '';
+        if (!$accessToken) {
+            $_SESSION['auth_error'] = 'Google authentication failed. Please try again.';
+            header('Location: /login');
+            exit;
+        }
+
+        // Fetch user info
+        $userCtx = stream_context_create([
+            'http' => [
+                'method'  => 'GET',
+                'header'  => 'Authorization: Bearer ' . $accessToken,
+                'timeout' => 15,
+            ],
+        ]);
+
+        $userResponse = @file_get_contents('https://www.googleapis.com/oauth2/v3/userinfo', false, $userCtx);
+        if (!$userResponse) {
+            $_SESSION['auth_error'] = 'Could not fetch your Google profile. Please try again.';
+            header('Location: /login');
+            exit;
+        }
+
+        $googleUser = json_decode($userResponse, true);
+        $googleId   = $googleUser['sub']   ?? '';
+        $email      = $googleUser['email'] ?? '';
+        $name       = $googleUser['name']  ?? '';
+
+        if (!$googleId || !$email) {
+            $_SESSION['auth_error'] = 'Google did not return a valid account. Please try again.';
+            header('Location: /login');
+            exit;
+        }
+
+        $db = Database::get();
+
+        // 1. Find by google_id
+        $stmt = $db->prepare("SELECT * FROM users WHERE google_id = ? LIMIT 1");
+        $stmt->execute([$googleId]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // 2. Find by email and link google_id
+        if (!$user) {
+            $stmt = $db->prepare("SELECT * FROM users WHERE email = ? LIMIT 1");
+            $stmt->execute([$email]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($user) {
+                $db->prepare("UPDATE users SET google_id = ?, updated_at = NOW() WHERE id = ?")
+                   ->execute([$googleId, $user['id']]);
+                $user['google_id'] = $googleId;
+            }
+        }
+
+        // 3. New user — create owner account
+        if (!$user) {
+            $userId = $this->userModel->create([
+                'name'      => $name,
+                'email'     => $email,
+                'password'  => bin2hex(random_bytes(32)), // unusable random password
+                'role'      => 'owner',
+                'google_id' => $googleId,
+            ]);
+            $this->userModel->createOwnerProfile($userId);
+            $db->prepare("UPDATE users SET google_id = ?, updated_at = NOW() WHERE id = ?")
+               ->execute([$googleId, $userId]);
+            $user = $this->userModel->findById($userId);
+            Mailer::welcome($email, $name);
+        }
+
+        if (($user['status'] ?? '') !== 'active') {
+            $_SESSION['auth_error'] = 'Your account has been suspended. Please contact support.';
+            header('Location: /login');
+            exit;
+        }
+
+        Auth::login($user);
+        Auth::redirectToDashboard();
+    }
 }
