@@ -33,7 +33,6 @@
                         <li class="nav-item"><a class="nav-link" href="/admin/dashboard">Admin Panel</a></li>
                     <?php else: ?>
                         <li class="nav-item"><a class="nav-link" href="/owner/dashboard">Dashboard</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/owner/listings">My Listings</a></li>
                         <li class="nav-item"><a class="nav-link" href="/owner/profile">My Profile</a></li>
                     <?php endif; ?>
                     <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
