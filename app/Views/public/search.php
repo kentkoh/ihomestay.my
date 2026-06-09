@@ -173,14 +173,27 @@ function searchPageUrl(int $page, array $filters): string {
                                 RM <?= number_format((float) $listing['price_per_night'], 0) ?>
                                 <span class="fw-normal text-muted" style="font-size:.85rem;">/night</span>
                             </div>
-                            <?php if ($listing['owner_whatsapp']): ?>
-                            <?php $wa = preg_replace('/\D/', '', $listing['owner_whatsapp']); ?>
-                            <a href="https://wa.me/<?= $wa ?>?text=<?= urlencode('Hi, I\'m interested in your homestay: ' . $listing['title']) ?>"
+                            <?php
+                            $_wa = preg_replace('/\D/', '', $listing['owner_whatsapp'] ?? '');
+                            $_waText = urlencode('Hi, I Saw your Homestay listing "' . $listing['title'] . '" at ihomestay.my, Can I get more info for this unit?');
+                            $_waUrl  = 'https://wa.me/' . $_wa . '?text=' . $_waText;
+                            ?>
+                            <?php if ($_wa): ?>
+                            <?php if (!empty($listing['owner_is_verified'])): ?>
+                            <a href="<?= $_waUrl ?>"
                                class="btn btn-sm wa-btn"
                                target="_blank" rel="noopener noreferrer"
                                style="position:relative;z-index:2;">
                                 <i class="bi bi-whatsapp"></i> WhatsApp
                             </a>
+                            <?php else: ?>
+                            <button type="button"
+                                    class="btn btn-sm wa-btn wa-unverified-trigger"
+                                    data-wa-url="<?= htmlspecialchars($_waUrl) ?>"
+                                    style="position:relative;z-index:2;">
+                                <i class="bi bi-whatsapp"></i> WhatsApp
+                            </button>
+                            <?php endif; ?>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -250,4 +263,44 @@ function searchPageUrl(int $page, array $filters): string {
     filterState.addEventListener('change', updateCities);
     updateCities();
 })();
+</script>
+
+<!-- Shared unverified-owner modal -->
+<div class="modal fade" id="waUnverifiedModal" tabindex="-1" aria-labelledby="waUnverifiedModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="waUnverifiedModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>Owner Not Yet Verified
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-2">
+                <p class="text-muted mb-3">
+                    This owner has not yet completed identity verification on ihomestay.my.
+                    You can still contact them, but please take precautions:
+                </p>
+                <ul class="small text-muted mb-0 ps-3">
+                    <li>Ask for photos or video of the property before committing</li>
+                    <li>Do not transfer any payment before confirming with the owner</li>
+                    <li>Meet in person or via video call if possible before booking</li>
+                </ul>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Go Back</button>
+                <a id="waUnverifiedProceed" href="#" target="_blank" rel="noopener"
+                   class="btn" style="background:#25D366;color:#fff;">
+                    <i class="bi bi-whatsapp me-1"></i>Proceed to WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.querySelectorAll('.wa-unverified-trigger').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.getElementById('waUnverifiedProceed').href = btn.dataset.waUrl;
+        new bootstrap.Modal(document.getElementById('waUnverifiedModal')).show();
+    });
+});
 </script>
