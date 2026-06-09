@@ -140,6 +140,47 @@ class User {
         )->execute([$status, $id]);
     }
 
+    public static function adminUpdate(int $id, array $data): void {
+        $pdo = Database::get();
+        $pdo->prepare(
+            "UPDATE users SET name = ?, email = ?, phone = ?, whatsapp = ?,
+             verification_status = ?, updated_at = NOW() WHERE id = ?"
+        )->execute([
+            $data['name'], $data['email'], $data['phone'] ?? null,
+            $data['whatsapp'] ?? null, $data['verification_status'], $id,
+        ]);
+        $pdo->prepare(
+            "UPDATE owner_profiles SET company_name = ?, about = ?, address = ?,
+             facebook_url = ?, instagram_url = ?, website_url = ?, updated_at = NOW()
+             WHERE user_id = ?"
+        )->execute([
+            $data['company_name'] ?? null, $data['about'] ?? null,
+            $data['op_address']   ?? null, $data['facebook_url']  ?? null,
+            $data['instagram_url'] ?? null, $data['website_url']  ?? null,
+            $id,
+        ]);
+        if (!empty($data['new_password'])) {
+            $pdo->prepare("UPDATE users SET password = ?, updated_at = NOW() WHERE id = ?")
+                ->execute([password_hash($data['new_password'], PASSWORD_DEFAULT), $id]);
+        }
+    }
+
+    public static function deleteOwner(int $id): void {
+        $pdo = Database::get();
+        // Collect listing ids to clean up child tables
+        $listingIds = $pdo->prepare("SELECT id FROM listings WHERE owner_id = ?");
+        $listingIds->execute([$id]);
+        foreach ($listingIds->fetchAll(PDO::FETCH_COLUMN) as $lid) {
+            $pdo->prepare("DELETE FROM listing_promotions   WHERE listing_id = ?")->execute([$lid]);
+            $pdo->prepare("DELETE FROM listing_blocked_dates WHERE listing_id = ?")->execute([$lid]);
+            $pdo->prepare("DELETE FROM listing_facilities   WHERE listing_id = ?")->execute([$lid]);
+            $pdo->prepare("DELETE FROM listing_images       WHERE listing_id = ?")->execute([$lid]);
+        }
+        $pdo->prepare("DELETE FROM listings      WHERE owner_id = ?")->execute([$id]);
+        $pdo->prepare("DELETE FROM owner_profiles WHERE user_id  = ?")->execute([$id]);
+        $pdo->prepare("DELETE FROM users          WHERE id = ?")->execute([$id]);
+    }
+
     // Normalise to Malaysian international format: 01x... → 601x..., +601x... → 601x...
     public static function normalizePhone(string $phone): string {
         $digits = preg_replace('/\D/', '', $phone); // strip spaces, dashes, +

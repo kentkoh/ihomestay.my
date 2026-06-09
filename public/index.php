@@ -90,6 +90,9 @@ $router->post('/admin/listings/{id}/unfeature',    ['AdminListingController', 'u
 
 // Admin — owners
 $router->get('/admin/owners',                    ['AdminOwnerController', 'index']);
+$router->get('/admin/owners/{id}/edit',          ['AdminOwnerController', 'editForm']);
+$router->post('/admin/owners/{id}/update',       ['AdminOwnerController', 'update']);
+$router->post('/admin/owners/{id}/delete',       ['AdminOwnerController', 'delete']);
 $router->post('/admin/owners/{id}/verify',       ['AdminOwnerController', 'verify']);
 $router->post('/admin/owners/{id}/unverify',     ['AdminOwnerController', 'unverify']);
 

@@ -49,7 +49,11 @@ $verificationColors = [
                     </td>
                     <td class="small text-muted"><?= date('d M Y', strtotime($o['created_at'])) ?></td>
                     <td class="text-end pe-3">
-                        <div class="d-flex gap-1 justify-content-end">
+                        <div class="d-flex gap-1 justify-content-end flex-wrap">
+                            <a href="/admin/owners/<?= $o['id'] ?>/edit"
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
                             <?php if ($o['verification_status'] !== 'verified'): ?>
                                 <form method="POST" action="/admin/owners/<?= $o['id'] ?>/verify">
                                     <?= CSRF::field() ?>
